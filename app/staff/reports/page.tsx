@@ -12,6 +12,7 @@ interface AttendanceRecord {
   id: string;
   studentName: string;
   studentId: string;
+  studentIdNumber: string;
   eventName: string;
   eventId: string;
   date: string;
@@ -76,6 +77,10 @@ export default function StaffReportsPage() {
     };
 
     fetchData();
+
+    // Auto-refresh every 3 seconds for live monitoring
+    const interval = setInterval(fetchData, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   // Filter attendance
@@ -231,7 +236,7 @@ export default function StaffReportsPage() {
                             </div>
                             <div>
                               <p className="text-sm font-semibold text-gray-900">{record.studentName || "Unknown"}</p>
-                              <p className="text-xs text-gray-500">{record.studentId || "N/A"}</p>
+                              <p className="text-xs text-gray-500">{record.studentIdNumber || record.studentId || "N/A"}</p>
                             </div>
                           </div>
                         </td>
