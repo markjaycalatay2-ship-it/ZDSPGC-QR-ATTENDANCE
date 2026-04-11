@@ -24,13 +24,27 @@ interface EventCardProps {
 function EventCard({ event }: EventCardProps) {
   const [showQR, setShowQR] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
-  const [qrToken, setQrToken] = useState(() => Date.now().toString());
+  const [qrData, setQrData] = useState(() => {
+    const token = Date.now().toString();
+    return JSON.stringify({
+      eventId: event.id,
+      eventName: event.eventName,
+      token: token,
+      exp: Date.now() + 60000,
+    });
+  });
 
-  // Generate new QR token
+  // Generate new QR data
   const refreshQR = useCallback(() => {
-    setQrToken(Date.now().toString());
+    const token = Date.now().toString();
+    setQrData(JSON.stringify({
+      eventId: event.id,
+      eventName: event.eventName,
+      token: token,
+      exp: Date.now() + 60000,
+    }));
     setTimeLeft(60);
-  }, []);
+  }, [event.id, event.eventName]);
 
   // Countdown timer
   useEffect(() => {
@@ -48,13 +62,6 @@ function EventCard({ event }: EventCardProps) {
 
     return () => clearInterval(timer);
   }, [showQR, refreshQR]);
-
-  const qrData = JSON.stringify({
-    eventId: event.id,
-    eventName: event.eventName,
-    token: qrToken,
-    exp: Date.now() + 60000, // 1 minute expiry
-  });
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
