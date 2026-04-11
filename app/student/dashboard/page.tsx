@@ -5,7 +5,7 @@ import { collection, getDocs, query, where, doc, getDoc } from "firebase/firesto
 import { getFirebaseDb } from "@/lib/firebase";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { StudentSidebar } from "@/components/student/StudentSidebar";
-import { QRCodeSVG } from "qrcode.react";
+import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const dynamic = "force-dynamic";
@@ -24,9 +24,7 @@ interface Event {
 export default function StudentDashboardPage() {
   const { user } = useAuth();
   const [todayEvent, setTodayEvent] = useState<Event | null>(null);
-  const [qrToken, setQrToken] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
-  const [studentData, setStudentData] = useState<any>(null);
 
   useEffect(() => {
     const fetchTodayEvent = async () => {
@@ -46,19 +44,6 @@ export default function StudentDashboardPage() {
           const eventData = docSnapshot.data() as Omit<Event, "id">;
           setTodayEvent({ id: docSnapshot.id, ...eventData });
           
-          // Fetch current token
-          const tokenDoc = await getDoc(doc(db, "eventTokens", snapshot.docs[0].id));
-          if (tokenDoc.exists()) {
-            setQrToken(tokenDoc.data().token);
-          }
-        }
-
-        // Fetch student data
-        if (user) {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            setStudentData(userDoc.data());
-          }
         }
       } catch (err) {
         console.error("Error fetching today's event:", err);
@@ -70,13 +55,6 @@ export default function StudentDashboardPage() {
     fetchTodayEvent();
   }, [user]);
 
-  const qrData = todayEvent && studentData && qrToken
-    ? JSON.stringify({
-        eventId: todayEvent.id,
-        studentId: studentData.studentId,
-        token: qrToken,
-      })
-    : "";
 
   return (
     <ProtectedRoute allowedRole="student">
@@ -100,18 +78,29 @@ export default function StudentDashboardPage() {
                 Location: {todayEvent.location}
               </p>
 
-              {qrData ? (
-                <div className="flex flex-col items-center">
-                  <div className="p-4 bg-white border-2 border-gray-200 rounded-lg">
-                    <QRCodeSVG value={qrData} size={200} level="H" />
-                  </div>
-                  <p className="text-sm text-gray-500 mt-4 text-center">
-                    Show this QR code to staff for attendance
+              <div className="flex flex-col gap-4">
+                <Link
+                  href="/student/scan"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-0.5 text-center"
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                    Scan QR Code to Mark Attendance
+                  </span>
+                </Link>
+                
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-sm text-blue-700">
+                    <strong>How to mark attendance:</strong><br />
+                    1. Find the staff member at the event<br />
+                    2. Ask to see the event QR code<br />
+                    3. Click "Scan QR Code" above<br />
+                    4. Point your camera at the QR code
                   </p>
                 </div>
-              ) : (
-                <p className="text-center text-gray-500">QR code not available</p>
-              )}
+              </div>
             </div>
           ) : (
             <div className="bg-white p-8 rounded-lg shadow-md text-center">
