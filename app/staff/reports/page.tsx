@@ -29,7 +29,7 @@ export default function StaffReportsPage() {
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<string>("all");
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(""); // Empty = all dates
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
     totalPresent: 0,
@@ -60,11 +60,14 @@ export default function StaffReportsPage() {
         })) as AttendanceRecord[];
         setAttendance(attendanceList);
 
-        // Calculate stats
-        const totalPresent = attendanceList.length;
-        const uniqueStudents = new Set(attendanceList.map(a => a.studentId)).size;
+        // Calculate stats based on filtered data
+        const filteredForStats = attendanceList.filter(a => {
+          return selectedDate === "" || a.date === selectedDate;
+        });
+        const totalPresent = filteredForStats.length;
+        const uniqueStudents = new Set(filteredForStats.map(a => a.studentId)).size;
         const byEvent: Record<string, number> = {};
-        attendanceList.forEach(a => {
+        filteredForStats.forEach(a => {
           byEvent[a.eventName] = (byEvent[a.eventName] || 0) + 1;
         });
 
@@ -86,7 +89,7 @@ export default function StaffReportsPage() {
   // Filter attendance
   const filteredAttendance = attendance.filter((record) => {
     const matchEvent = selectedEvent === "all" || record.eventId === selectedEvent;
-    const matchDate = record.date === selectedDate;
+    const matchDate = selectedDate === "" || record.date === selectedDate;
     return matchEvent && matchDate;
   });
 
@@ -125,14 +128,24 @@ export default function StaffReportsPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Select Date
+                  Select Date {selectedDate && `(Current: ${selectedDate})`}
                 </label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  />
+                  {selectedDate && (
+                    <button
+                      onClick={() => setSelectedDate("")}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors text-sm font-medium"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
