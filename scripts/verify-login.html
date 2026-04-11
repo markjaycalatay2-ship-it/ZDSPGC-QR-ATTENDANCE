@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verify Admin Login</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <style>
+    body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; }
+    button { padding: 12px 24px; font-size: 16px; cursor: pointer; margin: 5px; }
+    .success { background: #4CAF50; color: white; border: none; border-radius: 5px; }
+    .test { background: #2196F3; color: white; border: none; border-radius: 5px; }
+    #status { margin-top: 20px; padding: 15px; border-radius: 5px; font-family: monospace; }
+    input { width: 100%; padding: 10px; margin: 5px 0; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Admin Login Fix</h1>
+  
+  <h3>Option 1: Create New Admin (Easiest)</h3>
+  <input type="email" id="newEmail" placeholder="New admin email" value="admin@qrattendance.com">
+  <input type="password" id="newPass" placeholder="Password" value="admin123456">
+  <button class="success" onclick="createNewAdmin()">Create New Admin</button>
+  
+  <hr style="margin: 30px 0;">
+  
+  <h3>Option 2: Test Existing Login</h3>
+  <input type="email" id="testEmail" placeholder="Email" value="markjaycalatay2@gmail.com">
+  <input type="password" id="testPass" placeholder="Password">
+  <button class="test" onclick="testLogin()">Test Login</button>
+  
+  <div id="status"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAyGox6FE-xc2_eM2M3Q-MeJMZdoLFMezU",
+      authDomain: "qr-code-attendance-d7d3b.firebaseapp.com",
+      projectId: "qr-code-attendance-d7d3b",
+      storageBucket: "qr-code-attendance-d7d3b.firebasestorage.app",
+      messagingSenderId: "667955646769",
+      appId: "1:667955646769:web:b2086e717f42169634e010"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    function showStatus(msg, isError = false) {
+      document.getElementById('status').innerHTML = 
+        `<div style="background: ${isError ? '#ffebee' : '#e8f5e9'}; padding: 15px; border-radius: 5px;">${msg}</div>`;
+    }
+
+    async function createNewAdmin() {
+      const email = document.getElementById('newEmail').value;
+      const password = document.getElementById('newPass').value;
+      
+      showStatus('Creating admin user...');
+      
+      try {
+        // Create user
+        const userCred = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCred.user;
+        
+        // Add to Firestore
+        await db.collection('users').doc(user.uid).set({
+          email: email,
+          fullName: 'Admin User',
+          role: 'admin',
+          createdAt: new Date().toISOString()
+        });
+        
+        showStatus(`✅ Admin created!<br><br>Email: ${email}<br>Password: ${password}<br><br>You can now login at:<br>http://localhost:3000/login/admin`);
+        
+        await auth.signOut();
+      } catch (err) {
+        showStatus(`❌ Error: ${err.message}`, true);
+      }
+    }
+
+    async function testLogin() {
+      const email = document.getElementById('testEmail').value;
+      const password = document.getElementById('testPass').value;
+      
+      showStatus('Testing login...');
+      
+      try {
+        const userCred = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCred.user;
+        
+        // Check role
+        const doc = await db.collection('users').doc(user.uid).get();
+        const data = doc.data();
+        
+        if (data && data.role === 'admin') {
+          showStatus(`✅ Login successful!<br>UID: ${user.uid}<br>Role: ${data.role}<br><br>Your credentials work! Use these to login.`);
+        } else {
+          showStatus(`⚠️ Login works but role is "${data?.role || 'not set'}".<br>Need to update role to "admin" in Firestore.`, true);
+        }
+        
+        await auth.signOut();
+      } catch (err) {
+        showStatus(`❌ Login failed: ${err.message}<br><br>Common fixes:<br>1. Check email spelling<br>2. Reset password in Firebase Console again<br>3. Create new admin with Option 1`, true);
+      }
+    }
+  </script>
+</body>
+</html>

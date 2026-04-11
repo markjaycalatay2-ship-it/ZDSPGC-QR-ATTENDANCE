@@ -1,0 +1,391 @@
+"use client";
+
+import { useState } from "react";
+import { collection, doc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { getFirebaseDb, getFirebaseAuth } from "@/lib/firebase";
+
+type UserRole = "admin" | "staff" | "student";
+
+const COURSES = ["ACT", "BSIS", "BPED"];
+
+const COURSE_CONFIG: Record<string, Record<string, string[]>> = {
+  ACT: {
+    "1st Year": ["A", "B", "C", "D", "E", "F"],
+    "2nd Year": ["A", "B", "C", "D", "E"],
+  },
+  BSIS: {
+    "3rd Year": ["A", "B", "C"],
+    "4th Year": ["A", "B"],
+  },
+  BPED: {
+    "3rd Year": ["A", "B", "C"],
+  },
+};
+
+interface AddUserFormProps {
+  onUserAdded: () => void;
+}
+
+export function AddUserForm({ onUserAdded }: AddUserFormProps) {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [studentId, setStudentId] = useState("");
+  const [course, setCourse] = useState("");
+  const [year, setYear] = useState("");
+  const [set, setSet] = useState("");
+  const [role, setRole] = useState<UserRole>("student");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const isStudent = role === "student";
+  const availableYears = course ? Object.keys(COURSE_CONFIG[course]) : [];
+  const availableSets = course && year ? COURSE_CONFIG[course][year] : [];
+
+  const handleCourseChange = (value: string) => {
+    setCourse(value);
+    setYear("");
+    setSet("");
+  };
+
+  const handleYearChange = (value: string) => {
+    setYear(value);
+    setSet("");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setIsLoading(true);
+
+    try {
+      // Validate student fields
+      if (isStudent) {
+        if (!course) {
+          setError("Please select a course");
+          setIsLoading(false);
+          return;
+        }
+        if (!year) {
+          setError("Please select a year");
+          setIsLoading(false);
+          return;
+        }
+        if (!set) {
+          setError("Please select a set");
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Create user in Firebase Auth
+      const auth = getFirebaseAuth();
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Create user document in Firestore
+      const db = getFirebaseDb();
+      const userData: any = {
+        email,
+        fullName,
+        role,
+        studentId: studentId || null,
+        createdAt: new Date().toISOString(),
+      };
+
+      // Add course/year/set for students only
+      if (isStudent) {
+        userData.course = course;
+        userData.year = year;
+        userData.set = set;
+      }
+
+      await setDoc(doc(db, "users", user.uid), userData);
+
+      setSuccess("User created successfully!");
+      
+      // Reset form
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setStudentId("");
+      setCourse("");
+      setYear("");
+      setSet("");
+      setRole("student");
+      
+      onUserAdded();
+    } catch (err: any) {
+      if (err.code === "auth/email-already-in-use") {
+        setError("Email already in use");
+      } else if (err.code === "auth/weak-password") {
+        setError("Password must be at least 6 characters");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email address");
+      } else {
+        setError(err.message || "Failed to create user. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getRoleColor = (role: UserRole) => {
+    switch (role) {
+      case "admin": return "from-rose-500 to-rose-600";
+      case "staff": return "from-blue-500 to-blue-600";
+      case "student": return "from-emerald-500 to-emerald-600";
+    }
+  };
+
+  const getRoleBg = (role: UserRole) => {
+    switch (role) {
+      case "admin": return "bg-rose-50 border-rose-200";
+      case "staff": return "bg-blue-50 border-blue-200";
+      case "student": return "bg-emerald-50 border-emerald-200";
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
+      {/* Header with gradient based on role */}
+      <div className={`bg-gradient-to-r ${getRoleColor(role)} px-6 py-4 -mx-6 -mt-6 mb-6`}>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-lg">
+            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Add New User</h2>
+            <p className="text-white/80 text-sm">Create a new {role} account</p>
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r-lg mb-4 flex items-center gap-2">
+          <svg className="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 px-4 py-3 rounded-r-lg mb-4 flex items-center gap-2">
+          <svg className="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {success}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Full Name */}
+        <div className="group">
+          <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Full Name <span className="text-rose-500">*</span>
+          </label>
+          <input
+            id="fullName"
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            placeholder="Enter full name"
+          />
+        </div>
+
+        {/* Email */}
+        <div className="group">
+          <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+            </svg>
+            Email <span className="text-rose-500">*</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            placeholder="Enter email address"
+          />
+        </div>
+
+        {/* Password */}
+        <div className="group">
+          <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Password <span className="text-rose-500">*</span>
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            placeholder="Min 6 characters"
+          />
+        </div>
+
+        {/* ID */}
+        <div className="group">
+          <label htmlFor="studentId" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+            </svg>
+            {isStudent ? "Student ID" : "ID Number"} <span className="text-gray-400 font-normal">(Optional)</span>
+          </label>
+          <input
+            id="studentId"
+            type="text"
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            placeholder={`Enter ${isStudent ? "student" : "ID"} number`}
+          />
+        </div>
+
+        {/* Role */}
+        <div className="group">
+          <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Role <span className="text-rose-500">*</span>
+          </label>
+          <select
+            id="role"
+            value={role}
+            onChange={(e) => {
+              setRole(e.target.value as UserRole);
+              setCourse("");
+              setYear("");
+              setSet("");
+            }}
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+          >
+            <option value="student">Student</option>
+            <option value="staff">Staff</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        {/* Course Selection - Only for Students */}
+        {isStudent && (
+          <>
+            <div className="group">
+              <label htmlFor="course" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Course <span className="text-rose-500">*</span>
+              </label>
+              <select
+                id="course"
+                value={course}
+                onChange={(e) => handleCourseChange(e.target.value)}
+                required={isStudent}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              >
+                <option value="">Select Course</option>
+                {COURSES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Year Selection - Shows after course selected */}
+            {course && (
+              <div className="group">
+                <label htmlFor="year" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Year Level <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  id="year"
+                  value={year}
+                  onChange={(e) => handleYearChange(e.target.value)}
+                  required={isStudent}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                >
+                  <option value="">Select Year</option>
+                  {availableYears.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Set Selection - Shows after year selected */}
+            {course && year && (
+              <div className="group">
+                <label htmlFor="set" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Set <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  id="set"
+                  value={set}
+                  onChange={(e) => setSet(e.target.value)}
+                  required={isStudent}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                >
+                  <option value="">Select Set</option>
+                  {availableSets.map((s) => (
+                    <option key={s} value={s}>Set {s}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Submit Button */}
+        <div className="md:col-span-2 pt-4">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full md:w-auto px-8 py-3 bg-gradient-to-r ${getRoleColor(role)} text-white font-semibold rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2`}
+          >
+            {isLoading ? (
+              <>
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Creating User...
+              </>
+            ) : (
+              <>
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                Create {role.charAt(0).toUpperCase() + role.slice(1)} Account
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

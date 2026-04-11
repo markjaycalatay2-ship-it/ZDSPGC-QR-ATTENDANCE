@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quick Admin Setup</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; }
+    button { padding: 15px 30px; font-size: 16px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 5px; }
+    button:hover { background: #45a049; }
+    #status { margin-top: 20px; padding: 15px; border-radius: 5px; }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    .info { background: #d1ecf1; color: #0c5460; }
+  </style>
+</head>
+<body>
+  <h1>Quick Admin Setup</h1>
+  <p>Click the button below to create the admin user:</p>
+  <ul>
+    <li><strong>Email:</strong> markjaycalatay2@gmail.com</li>
+    <li><strong>Password:</strong> mark-jay1129</li>
+    <li><strong>Name:</strong> Mark Jay Calatay</li>
+    <li><strong>Role:</strong> Admin</li>
+  </ul>
+  <button onclick="createAdmin()">Create Admin User</button>
+  <div id="status"></div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAyGox6FE-xc2_eM2M3Q-MeJMZdoLFMezU",
+      authDomain: "qr-code-attendance-d7d3b.firebaseapp.com",
+      projectId: "qr-code-attendance-d7d3b",
+      storageBucket: "qr-code-attendance-d7d3b.firebasestorage.app",
+      messagingSenderId: "667955646769",
+      appId: "1:667955646769:web:b2086e717f42169634e010"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    async function createAdmin() {
+      const status = document.getElementById('status');
+      status.className = 'info';
+      status.textContent = 'Creating admin user...';
+
+      try {
+        // Create user
+        const userCredential = await auth.createUserWithEmailAndPassword(
+          'markjaycalatay2@gmail.com',
+          'mark-jay1129'
+        );
+        
+        const user = userCredential.user;
+        
+        // Create Firestore document
+        await db.collection('users').doc(user.uid).set({
+          email: 'markjaycalatay2@gmail.com',
+          fullName: 'Mark Jay Calatay',
+          role: 'admin',
+          createdAt: new Date().toISOString()
+        });
+
+        status.className = 'success';
+        status.innerHTML = `<strong>✅ Admin created successfully!</strong><br>
+                           UID: ${user.uid}<br><br>
+                           You can now log in at:<br>
+                           <a href="http://localhost:3000/login/admin">http://localhost:3000/login/admin</a>`;
+        
+        // Sign out
+        await auth.signOut();
+        
+      } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+          // Try to sign in and update the document
+          try {
+            const userCredential = await auth.signInWithEmailAndPassword(
+              'markjaycalatay2@gmail.com',
+              'mark-jay1129'
+            );
+            const user = userCredential.user;
+            
+            await db.collection('users').doc(user.uid).set({
+              email: 'markjaycalatay2@gmail.com',
+              fullName: 'Mark Jay Calatay',
+              role: 'admin',
+              updatedAt: new Date().toISOString()
+            }, { merge: true });
+
+            status.className = 'success';
+            status.innerHTML = `<strong>✅ Admin user already exists - updated to admin role!</strong><br>
+                               You can now log in at:<br>
+                               <a href="http://localhost:3000/login/admin">http://localhost:3000/login/admin</a>`;
+            
+            await auth.signOut();
+          } catch (signInError) {
+            status.className = 'error';
+            status.innerHTML = `<strong>❌ Error:</strong> User exists but password may be different.<br>
+                               Please go to Firebase Console to reset password or check credentials.<br><br>
+                               Error: ${signInError.message}`;
+          }
+        } else {
+          status.className = 'error';
+          status.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
