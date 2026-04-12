@@ -22,11 +22,6 @@ interface AttendanceRecord {
 export default function StudentAttendancePage() {
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalEvents: 0,
-    presentCount: 0,
-    absentCount: 0,
-  });
   const { user } = useAuth();
 
   useEffect(() => {
@@ -54,16 +49,6 @@ export default function StudentAttendancePage() {
         })) as AttendanceRecord[];
 
         setAttendance(attendanceList);
-
-        // Calculate stats
-        const present = attendanceList.filter((a) => a.status === "present").length;
-        const absent = attendanceList.filter((a) => a.status === "absent").length;
-
-        setStats({
-          totalEvents: attendanceList.length,
-          presentCount: present,
-          absentCount: absent,
-        });
       } catch (err) {
         console.error("Error fetching attendance:", err);
       } finally {
@@ -98,83 +83,6 @@ export default function StudentAttendancePage() {
 
         <main className="flex-1 p-8">
           <h1 className="text-2xl font-bold mb-8">Attendance History</h1>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <svg
-                    className="h-5 w-5 text-blue-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-gray-600">
-                  Total Events Attended
-                </span>
-              </div>
-              <p className="text-3xl font-bold text-gray-800">
-                {isLoading ? "..." : stats.totalEvents}
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <svg
-                    className="h-5 w-5 text-emerald-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-gray-600">Present</span>
-              </div>
-              <p className="text-3xl font-bold text-emerald-600">
-                {isLoading ? "..." : stats.presentCount}
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <svg
-                    className="h-5 w-5 text-red-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-gray-600">Absent</span>
-              </div>
-              <p className="text-3xl font-bold text-red-600">
-                {isLoading ? "..." : stats.absentCount}
-              </p>
-            </div>
-          </div>
 
           {/* Attendance Table */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
