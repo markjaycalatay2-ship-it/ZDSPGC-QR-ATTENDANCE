@@ -12,7 +12,6 @@ export function StudentSidebar() {
     { href: "/student/dashboard", label: "Dashboard" },
     { href: "/student/events", label: "Events" },
     { href: "/student/attendance", label: "Attendance History" },
-    { href: "/student/lost-found", label: "Lost and Found" },
   ];
 
   return (
