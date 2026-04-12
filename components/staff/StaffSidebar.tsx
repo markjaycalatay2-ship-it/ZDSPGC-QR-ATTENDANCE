@@ -12,6 +12,7 @@ export function StaffSidebar() {
     { href: "/staff/dashboard", label: "Dashboard" },
     { href: "/staff/events", label: "Events" },
     { href: "/staff/monitoring", label: "Live Monitoring" },
+    { href: "/staff/lost-found", label: "Lost and Found" },
   ];
 
   return (
