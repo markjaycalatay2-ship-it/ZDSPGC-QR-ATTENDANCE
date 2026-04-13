@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { StaffSidebar } from "@/components/staff/StaffSidebar";
@@ -15,6 +15,44 @@ interface Event {
   date: string;
   time: string;
   location: string;
+}
+
+interface AttendanceRecord {
+  id: string;
+  studentId: string;
+  studentName: string;
+  eventName: string;
+  scannedAt: string;
+  status: string;
+}
+
+interface StatsCardProps {
+  title: string;
+  value: number;
+  icon: string;
+  color: "blue" | "emerald" | "purple";
+}
+
+function StatsCard({ title, value, icon, color }: StatsCardProps) {
+  const colorClasses = {
+    blue: "from-blue-500 to-blue-600 shadow-blue-500/30",
+    emerald: "from-emerald-500 to-emerald-600 shadow-emerald-500/30",
+    purple: "from-purple-500 to-purple-600 shadow-purple-500/30",
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+      <div className="flex items-center gap-4">
+        <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${colorClasses[color]} flex items-center justify-center text-white text-2xl shadow-lg`}>
+          {icon}
+        </div>
+        <div>
+          <p className="text-sm text-gray-500 font-medium">{title}</p>
+          <p className="text-2xl font-bold text-gray-800">{value.toLocaleString()}</p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 interface EventCardProps {
@@ -138,34 +176,76 @@ function EventCard({ event }: EventCardProps) {
 
 export default function StaffDashboardPage() {
   const [todayEvents, setTodayEvents] = useState<Event[]>([]);
+  const [recentAttendance, setRecentAttendance] = useState<AttendanceRecord[]>([]);
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalAttendance: 0,
+    activeEvents: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTodayEvents = async () => {
+    const fetchDashboardData = async () => {
       try {
         const db = getFirebaseDb();
         const today = new Date().toISOString().split('T')[0];
         
+        // Fetch today's events
         const eventsQuery = query(
           collection(db, "events"),
           where("date", "==", today)
         );
-        const snapshot = await getDocs(eventsQuery);
-        
+        const eventsSnapshot = await getDocs(eventsQuery);
         const events: Event[] = [];
-        snapshot.forEach((doc) => {
+        eventsSnapshot.forEach((doc) => {
           events.push({ id: doc.id, ...doc.data() } as Event);
         });
-        
         setTodayEvents(events);
+
+        // Fetch total students
+        const usersQuery = query(collection(db, "users"), where("role", "==", "student"));
+        const usersSnapshot = await getDocs(usersQuery);
+        const totalStudents = usersSnapshot.size;
+
+        // Fetch total attendance
+        const attendanceSnapshot = await getDocs(collection(db, "attendance"));
+        const totalAttendance = attendanceSnapshot.size;
+
+        // Set stats
+        setStats({
+          totalStudents,
+          totalAttendance,
+          activeEvents: events.length,
+        });
+
+        // Fetch recent attendance records
+        const recentAttendanceQuery = query(
+          collection(db, "attendance"),
+          orderBy("scannedAt", "desc"),
+          limit(10)
+        );
+        const recentSnapshot = await getDocs(recentAttendanceQuery);
+        const recent: AttendanceRecord[] = [];
+        recentSnapshot.forEach((doc) => {
+          const data = doc.data();
+          recent.push({
+            id: doc.id,
+            studentId: data.studentId || "N/A",
+            studentName: data.studentName || "Unknown",
+            eventName: data.eventName || "Unknown Event",
+            scannedAt: data.scannedAt || new Date().toISOString(),
+            status: data.status || "present",
+          });
+        });
+        setRecentAttendance(recent);
       } catch (err) {
-        console.error("Error fetching today's events:", err);
+        console.error("Error fetching dashboard data:", err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchTodayEvents();
+    fetchDashboardData();
   }, []);
 
   return (
@@ -176,16 +256,92 @@ export default function StaffDashboardPage() {
         <main className="flex-1 p-8">
           <h1 className="text-2xl font-bold mb-8">Staff Dashboard</h1>
 
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <StatsCard
+              title="Total Students"
+              value={stats.totalStudents}
+              icon="👨‍🎓"
+              color="blue"
+            />
+            <StatsCard
+              title="Total Attendance"
+              value={stats.totalAttendance}
+              icon="✅"
+              color="emerald"
+            />
+            <StatsCard
+              title="Active Events"
+              value={stats.activeEvents}
+              icon="📅"
+              color="purple"
+            />
+          </div>
+
           {isLoading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-500 mt-4">Loading events...</p>
+              <p className="text-gray-500 mt-4">Loading dashboard...</p>
             </div>
           ) : todayEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {todayEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Events with QR - Takes up 2 columns */}
+              <div className="lg:col-span-2 space-y-6">
+                <h2 className="text-lg font-semibold text-gray-800">Today's Events</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {todayEvents.map((event) => (
+                    <EventCard key={event.id} event={event} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Recent Attendance - Takes up 1 column */}
+              <div className="lg:col-span-1">
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                  <div className="p-4 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-800">Recent Attendance</h2>
+                    <p className="text-sm text-gray-500">Latest recorded attendance</p>
+                  </div>
+                  <div className="max-h-[600px] overflow-y-auto">
+                    {recentAttendance.length > 0 ? (
+                      <div className="divide-y divide-gray-100">
+                        {recentAttendance.map((record) => (
+                          <div key={record.id} className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                                <span className="text-emerald-600 font-semibold text-sm">
+                                  {record.studentName.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-gray-800 truncate">
+                                  {record.studentName}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {record.eventName}
+                                </p>
+                                <p className="text-xs text-gray-400">
+                                  {new Date(record.scannedAt).toLocaleTimeString('en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                              </div>
+                              <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
+                                {record.status}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center">
+                        <p className="text-gray-500">No recent attendance records</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="bg-white p-8 rounded-2xl shadow-lg text-center">
