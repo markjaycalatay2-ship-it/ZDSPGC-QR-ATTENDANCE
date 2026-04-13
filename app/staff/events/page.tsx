@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy, addDoc, doc, getDoc, Timestamp } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, addDoc, deleteDoc, doc, getDoc, Timestamp } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { StaffSidebar } from "@/components/staff/StaffSidebar";
-import { QRScanner } from "@/components/staff/QRScanner";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +23,7 @@ interface Event {
 export default function StaffEventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [scanningEvent, setScanningEvent] = useState<Event | null>(null);
-  const [scanMessage, setScanMessage] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
 
@@ -94,56 +92,25 @@ export default function StaffEventsPage() {
     }
   };
 
-  const handleScan = async (data: string) => {
+  const handleDelete = async (eventId: string) => {
+    if (!confirm("Are you sure you want to delete this event?")) return;
+
     try {
-      const parsed = JSON.parse(data);
-      const { eventId, token } = parsed;
-
-      if (!scanningEvent || eventId !== scanningEvent.id) {
-        setScanMessage("Invalid QR code for this event");
-        setTimeout(() => setScanMessage(""), 3000);
-        return;
-      }
-
+      setDeletingId(eventId);
       const db = getFirebaseDb();
-
-      // Validate token against Firestore
-      const tokenDoc = await getDoc(doc(db, "eventTokens", eventId));
-      if (!tokenDoc.exists()) {
-        setScanMessage("QR code expired");
-        setTimeout(() => setScanMessage(""), 3000);
-        return;
-      }
-
-      const tokenData = tokenDoc.data();
-      if (tokenData.token !== token) {
-        setScanMessage("QR code expired");
-        setTimeout(() => setScanMessage(""), 3000);
-        return;
-      }
-
-      // Check if token is expired (30 seconds validity)
-      const expiresAt = new Date(tokenData.expiresAt).getTime();
-      if (Date.now() > expiresAt) {
-        setScanMessage("QR code expired");
-        setTimeout(() => setScanMessage(""), 3000);
-        return;
-      }
-
-      // Record attendance
-      await addDoc(collection(db, "attendance"), {
-        eventId: scanningEvent.id,
-        eventName: scanningEvent.eventName,
-        token,
-        scannedAt: new Date().toISOString(),
-      });
-
-      setScanMessage("Attendance recorded successfully!");
-      setScanningEvent(null);
-      setTimeout(() => setScanMessage(""), 3000);
+      await deleteDoc(doc(db, "events", eventId));
+      
+      setCreateMessage("Event deleted successfully!");
+      setTimeout(() => setCreateMessage(""), 3000);
+      
+      // Refresh events list
+      fetchEvents();
     } catch (err) {
-      setScanMessage("Invalid QR code format");
-      setTimeout(() => setScanMessage(""), 3000);
+      console.error("Error deleting event:", err);
+      setCreateMessage("Failed to delete event. Please try again.");
+      setTimeout(() => setCreateMessage(""), 3000);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -271,17 +238,6 @@ export default function StaffEventsPage() {
             </div>
           )}
 
-          {scanMessage && (
-            <div
-              className={`mb-4 p-4 rounded-md ${
-                scanMessage.includes("successfully")
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              }`}
-            >
-              {scanMessage}
-            </div>
-          )}
 
           {isLoading ? (
             <div className="text-center py-8">
@@ -325,10 +281,11 @@ export default function StaffEventsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                           <button
-                            onClick={() => setScanningEvent(event)}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                            onClick={() => handleDelete(event.id)}
+                            disabled={deletingId === event.id}
+                            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            Check Attendance
+                            {deletingId === event.id ? "Deleting..." : "Delete"}
                           </button>
                         </td>
                       </tr>
@@ -339,12 +296,6 @@ export default function StaffEventsPage() {
             </div>
           )}
 
-          {scanningEvent && (
-            <QRScanner
-              onScan={handleScan}
-              onClose={() => setScanningEvent(null)}
-            />
-          )}
         </main>
       </div>
     </ProtectedRoute>
