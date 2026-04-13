@@ -228,7 +228,7 @@ export default function AdminDashboardPage() {
               {/* Quick Actions */}
               <div className="mb-8">
                 <h2 className="text-xl font-bold text-slate-800 mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <QuickAction
                     title="Add New User"
                     icon="➕"
@@ -240,12 +240,6 @@ export default function AdminDashboardPage() {
                     icon="📅"
                     href="/admin/events"
                     color="emerald"
-                  />
-                  <QuickAction
-                    title="View Reports"
-                    icon="📊"
-                    href="/staff/reports"
-                    color="purple"
                   />
                 </div>
               </div>
