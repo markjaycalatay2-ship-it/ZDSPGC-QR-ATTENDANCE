@@ -115,6 +115,10 @@ function EventCard({ event }: EventCardProps) {
       <div className="mb-4">
         <h2 className="text-lg font-bold text-gray-800">{event.eventName}</h2>
         <p className="text-sm text-gray-500">{event.timeIn} - {event.timeOut} • {event.location}</p>
+        <div className="mt-2 text-xs text-gray-400">
+          <p>Time In Window: {event.timeIn} - {new Date(event.timeInWindowEnd || '').toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true})}</p>
+          <p>Time Out Window: {event.timeOut} - {new Date(event.timeOutWindowEnd || '').toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true})}</p>
+        </div>
       </div>
 
       {!showQR ? (
@@ -193,16 +197,20 @@ export default function StaffDashboardPage() {
         const db = getFirebaseDb();
         const today = new Date().toISOString().split('T')[0];
         
-        // Fetch today's events
+        console.log("Fetching events for date:", today);
         const eventsQuery = query(
           collection(db, "events"),
-          where("date", "==", today)
+          where("date", "==", today),
+          orderBy("createdAt", "desc")
         );
         const eventsSnapshot = await getDocs(eventsQuery);
         const events: Event[] = [];
         eventsSnapshot.forEach((doc) => {
-          events.push({ id: doc.id, ...doc.data() } as Event);
+          const data = doc.data();
+          console.log("Event found:", doc.id, data.eventName, "Date:", data.date, "TimeIn:", data.timeIn, "TimeOut:", data.timeOut);
+          events.push({ id: doc.id, ...data } as Event);
         });
+        console.log("Total events found:", events.length);
         setTodayEvents(events);
 
         // Fetch total students
