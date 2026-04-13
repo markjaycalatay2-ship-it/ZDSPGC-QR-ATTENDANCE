@@ -303,7 +303,7 @@ export default function StaffEventsPage() {
                           {event.eventName}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(event.date)} at {event.time}
+                          {formatDate(event.date)} | In: {event.timeIn} - Out: {event.timeOut}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {event.location}
