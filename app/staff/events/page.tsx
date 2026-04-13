@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy, addDoc, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, addDoc, doc, getDoc, Timestamp } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { StaffSidebar } from "@/components/staff/StaffSidebar";
@@ -18,6 +18,7 @@ interface Event {
   latitude: number;
   longitude: number;
   radius: number;
+  createdBy?: string;
 }
 
 export default function StaffEventsPage() {
@@ -25,6 +26,17 @@ export default function StaffEventsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [scanningEvent, setScanningEvent] = useState<Event | null>(null);
   const [scanMessage, setScanMessage] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createMessage, setCreateMessage] = useState("");
+
+  // Form state for creating event
+  const [formData, setFormData] = useState({
+    eventName: "",
+    date: "",
+    time: "",
+    location: "",
+    description: "",
+  });
 
   const fetchEvents = async () => {
     try {
@@ -46,6 +58,41 @@ export default function StaffEventsPage() {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  const handleCreateEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const db = getFirebaseDb();
+      await addDoc(collection(db, "events"), {
+        ...formData,
+        createdAt: Timestamp.now().toDate().toISOString(),
+        latitude: 0,
+        longitude: 0,
+        radius: 50,
+        createdBy: "staff",
+      });
+
+      setCreateMessage("Event created successfully!");
+      setTimeout(() => setCreateMessage(""), 3000);
+      
+      // Reset form and close modal
+      setFormData({
+        eventName: "",
+        date: "",
+        time: "",
+        location: "",
+        description: "",
+      });
+      setShowCreateModal(false);
+      
+      // Refresh events list
+      fetchEvents();
+    } catch (err) {
+      console.error("Error creating event:", err);
+      setCreateMessage("Failed to create event. Please try again.");
+    }
+  };
 
   const handleScan = async (data: string) => {
     try {
@@ -110,7 +157,119 @@ export default function StaffEventsPage() {
         <StaffSidebar />
 
         <main className="flex-1 p-8">
-          <h1 className="text-2xl font-bold mb-8">Events</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-bold">Events</h1>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add Event
+            </button>
+          </div>
+
+          {createMessage && (
+            <div className={`mb-4 p-4 rounded-md ${createMessage.includes("successfully") ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>
+              {createMessage}
+            </div>
+          )}
+
+          {/* Create Event Modal */}
+          {showCreateModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                  <h2 className="text-xl font-bold text-gray-800">Create New Event</h2>
+                  <button
+                    onClick={() => setShowCreateModal(false)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <form onSubmit={handleCreateEvent} className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Event Name</label>
+                    <input
+                      type="text"
+                      value={formData.eventName}
+                      onChange={(e) => setFormData({ ...formData, eventName: e.target.value })}
+                      className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      required
+                      placeholder="Enter event name"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                      <input
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                      <input
+                        type="time"
+                        value={formData.time}
+                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      required
+                      placeholder="Enter event location"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      rows={3}
+                      placeholder="Enter event description"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateModal(false)}
+                      className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/30 transition-all duration-300"
+                    >
+                      Create Event
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
           {scanMessage && (
             <div
