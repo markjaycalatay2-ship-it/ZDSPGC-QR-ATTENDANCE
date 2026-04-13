@@ -132,10 +132,10 @@ function EventCard({ event }: EventCardProps) {
     <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
       <div className="mb-4">
         <h2 className="text-lg font-bold text-gray-800">{event.eventName}</h2>
-        <p className="text-sm text-gray-500">{formatTimeWithPeriod(event.timeIn || event.time)} - {formatTimeWithPeriod(event.timeOut || event.time)} • {event.location}</p>
+        <p className="text-sm text-gray-500">{formatEventTime(event.timeIn || event.time)} - {formatEventTime(event.timeOut || event.time)} • {event.location}</p>
         <div className="mt-2 text-xs text-gray-400">
-          <p>Time In: {formatTimeWithPeriod(event.timeIn || event.time)} (1hr window)</p>
-          <p>Time Out: {formatTimeWithPeriod(event.timeOut || event.time)} (1hr window)</p>
+          <p>Time In: {formatEventTime(event.timeIn || event.time)} (1hr window)</p>
+          <p>Time Out: {formatEventTime(event.timeOut || event.time)} (1hr window)</p>
         </div>
       </div>
 
