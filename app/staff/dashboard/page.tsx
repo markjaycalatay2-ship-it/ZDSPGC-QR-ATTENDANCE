@@ -115,25 +115,25 @@ function EventCard({ event }: EventCardProps) {
       </div>
 
       {!showQR ? (
-        <div className="flex flex-col items-center py-8">
+        <div className="flex flex-col items-center justify-center py-12">
           <button
             onClick={() => setShowQR(true)}
-            className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-3"
+            className="px-12 py-6 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xl font-bold rounded-2xl shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 flex items-center gap-4"
           >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
             </svg>
             Show QR Code
           </button>
-          <p className="text-sm text-gray-500 mt-4 text-center">
+          <p className="text-base text-gray-500 mt-6 text-center max-w-xs">
             Click to display QR code for students to scan
           </p>
         </div>
       ) : (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center py-4">
           <div className="relative">
-            <div className="p-6 bg-white border-4 border-emerald-500 rounded-2xl shadow-inner">
-              <QRCodeSVG value={qrData} size={280} level="H" />
+            <div className="p-4 bg-white border-4 border-emerald-500 rounded-2xl shadow-inner">
+              <QRCodeSVG value={qrData} size={320} level="H" />
             </div>
             
             {/* Timer badge */}
@@ -143,18 +143,18 @@ function EventCard({ event }: EventCardProps) {
           </div>
 
           <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-base text-gray-600 mb-2">
               QR code refreshes in <span className="font-bold text-emerald-600">{formatTime(timeLeft)}</span>
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-sm text-gray-500 mb-4">
               Show this to students for attendance
             </p>
           </div>
 
-          <div className="flex gap-3 mt-4">
+          <div className="flex gap-3">
             <button
               onClick={refreshQR}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium flex items-center gap-2"
+              className="px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium flex items-center gap-2"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -163,7 +163,7 @@ function EventCard({ event }: EventCardProps) {
             </button>
             <button
               onClick={() => setShowQR(false)}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+              className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
             >
               Hide
             </button>
@@ -286,9 +286,9 @@ export default function StaffDashboardPage() {
           ) : todayEvents.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Events with QR - Takes up 2 columns */}
-              <div className="lg:col-span-2 space-y-6">
-                <h2 className="text-lg font-semibold text-gray-800">Today's Events</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="lg:col-span-2">
+                <h2 className="text-lg font-semibold text-gray-800 mb-6">Today's Events</h2>
+                <div className="grid grid-cols-1 gap-6">
                   {todayEvents.map((event) => (
                     <EventCard key={event.id} event={event} />
                   ))}
