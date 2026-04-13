@@ -65,18 +65,38 @@ export default function StaffEventsPage() {
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!formData.date || !formData.timeIn || !formData.timeOut) {
+      setCreateMessage("Please fill in all required fields: Date, Time In, and Time Out");
+      return;
+    }
+    
     try {
       const db = getFirebaseDb();
       
       // Calculate time windows (1 hour duration for each)
       const timeInDate = new Date(`${formData.date}T${formData.timeIn}`);
       const timeOutDate = new Date(`${formData.date}T${formData.timeOut}`);
+      
+      // Validate dates
+      if (isNaN(timeInDate.getTime()) || isNaN(timeOutDate.getTime())) {
+        setCreateMessage("Invalid time format. Please check Time In and Time Out values.");
+        return;
+      }
+      
       const timeInWindowEnd = new Date(timeInDate.getTime() + 60 * 60 * 1000); // +1 hour
       const timeOutWindowEnd = new Date(timeOutDate.getTime() + 60 * 60 * 1000); // +1 hour
       
       await addDoc(collection(db, "events"), {
-        ...formData,
+        eventName: formData.eventName,
+        date: formData.date,
+        timeIn: formData.timeIn,
+        timeOut: formData.timeOut,
+        location: formData.location,
+        description: formData.description,
+        timeInWindowStart: timeInDate.toISOString(),
         timeInWindowEnd: timeInWindowEnd.toISOString(),
+        timeOutWindowStart: timeOutDate.toISOString(),
         timeOutWindowEnd: timeOutWindowEnd.toISOString(),
         createdAt: Timestamp.now().toDate().toISOString(),
         latitude: 0,

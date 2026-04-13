@@ -121,30 +121,54 @@ export default function StudentScanPage() {
       let lateReason = "";
 
       // Get time windows from event
+      const timeInWindowStart = eventInfo.timeInWindowStart ? new Date(eventInfo.timeInWindowStart).getTime() : null;
       const timeInWindowEnd = eventInfo.timeInWindowEnd ? new Date(eventInfo.timeInWindowEnd).getTime() : null;
+      const timeOutWindowStart = eventInfo.timeOutWindowStart ? new Date(eventInfo.timeOutWindowStart).getTime() : null;
       const timeOutWindowEnd = eventInfo.timeOutWindowEnd ? new Date(eventInfo.timeOutWindowEnd).getTime() : null;
-      const timeInStart = eventInfo.timeIn ? new Date(`${today}T${eventInfo.timeIn}`).getTime() : null;
-      const timeOutStart = eventInfo.timeOut ? new Date(`${today}T${eventInfo.timeOut}`).getTime() : null;
+      
+      // Fallback to timeIn/timeOut if window fields not available (backward compatibility)
+      const timeInStart = timeInWindowStart || (eventInfo.timeIn ? new Date(`${today}T${eventInfo.timeIn}`).getTime() : null);
+      const timeOutStart = timeOutWindowStart || (eventInfo.timeOut ? new Date(`${today}T${eventInfo.timeOut}`).getTime() : null);
 
-      if (timeInStart && timeOutStart) {
+      console.log("Scan time check:", {
+        scanTime: new Date(scanTime).toISOString(),
+        timeInStart: timeInStart ? new Date(timeInStart).toISOString() : null,
+        timeInWindowEnd: timeInWindowEnd ? new Date(timeInWindowEnd).toISOString() : null,
+        timeOutStart: timeOutStart ? new Date(timeOutStart).toISOString() : null,
+        timeOutWindowEnd: timeOutWindowEnd ? new Date(timeOutWindowEnd).toISOString() : null,
+      });
+
+      if (timeInStart && timeOutStart && timeInWindowEnd && timeOutWindowEnd) {
         // Check if scanned during time-in window (timeIn to timeIn + 1hr)
-        if (scanTime >= timeInStart && timeInWindowEnd && scanTime <= timeInWindowEnd) {
+        if (scanTime >= timeInStart && scanTime <= timeInWindowEnd) {
           attendanceStatus = "present";
+          console.log("Marked as PRESENT - within time-in window");
         }
         // Check if scanned during time-out window (timeOut to timeOut + 1hr)
-        else if (scanTime >= timeOutStart && timeOutWindowEnd && scanTime <= timeOutWindowEnd) {
+        else if (scanTime >= timeOutStart && scanTime <= timeOutWindowEnd) {
           attendanceStatus = "present";
+          console.log("Marked as PRESENT - within time-out window");
         }
-        // If scanned before time-in or after both windows, mark as late
-        else if (scanTime < timeInStart || (timeOutWindowEnd && scanTime > timeOutWindowEnd)) {
+        // If scanned before time-in start
+        else if (scanTime < timeInStart) {
           attendanceStatus = "late";
-          lateReason = scanTime < timeInStart ? "Scanned before event start" : "Scanned after event ended";
+          lateReason = "Scanned before time-in window";
+          console.log("Marked as LATE - before time-in window");
         }
-        // If scanned between timeIn window and timeOut window, mark as late
+        // If scanned after time-out window end
+        else if (scanTime > timeOutWindowEnd) {
+          attendanceStatus = "late";
+          lateReason = "Scanned after time-out window ended";
+          console.log("Marked as LATE - after time-out window");
+        }
+        // If scanned between timeIn window end and timeOut window start
         else {
           attendanceStatus = "late";
           lateReason = "Scanned outside allowed time windows";
+          console.log("Marked as LATE - between windows");
         }
+      } else {
+        console.log("Time window data incomplete, defaulting to present");
       }
 
       // Record attendance
