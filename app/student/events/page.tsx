@@ -63,6 +63,16 @@ export default function StudentEventsPage() {
     });
   };
 
+  // Helper function to format time with AM/PM
+  const formatTime = (timeString: string | undefined) => {
+    if (!timeString) return 'N/A';
+    // Convert 24h time (HH:mm) to 12h with AM/PM
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
   return (
     <ProtectedRoute allowedRole="student">
       <div className="flex min-h-screen bg-gray-100">
@@ -194,7 +204,7 @@ export default function StudentEventsPage() {
                               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          <span className="text-sm">{(event.timeIn || event.time) || 'N/A'} - {(event.timeOut || event.time) || 'N/A'}</span>
+                          <span className="text-sm">{formatTime(event.timeIn || event.time)} - {formatTime(event.timeOut || event.time)}</span>
                         </div>
 
                         <div className="flex items-center gap-2 text-gray-600">

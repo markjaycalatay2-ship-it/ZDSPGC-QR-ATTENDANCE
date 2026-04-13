@@ -111,16 +111,31 @@ function EventCard({ event }: EventCardProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Helper to format event time with AM/PM
+  const formatEventTime = (timeString: string | undefined) => {
+    if (!timeString) return 'N/A';
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
+  const formatTimeWithPeriod = (timeString: string | undefined) => {
+    if (!timeString) return 'N/A';
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
   return (
     <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
       <div className="mb-4">
         <h2 className="text-lg font-bold text-gray-800">{event.eventName}</h2>
-        <p className="text-sm text-gray-500">
-          {(event.timeIn || event.time)} - {(event.timeOut || event.time)} • {event.location}
-        </p>
+        <p className="text-sm text-gray-500">{formatTimeWithPeriod(event.timeIn || event.time)} - {formatTimeWithPeriod(event.timeOut || event.time)} • {event.location}</p>
         <div className="mt-2 text-xs text-gray-400">
-          <p>Time In: {event.timeIn || event.time} (1hr window)</p>
-          <p>Time Out: {event.timeOut || event.time} (1hr window)</p>
+          <p>Time In: {formatTimeWithPeriod(event.timeIn || event.time)} (1hr window)</p>
+          <p>Time Out: {formatTimeWithPeriod(event.timeOut || event.time)} (1hr window)</p>
         </div>
       </div>
 
@@ -216,10 +231,12 @@ export default function StaffDashboardPage() {
         console.log("Total events found:", events.length);
         setTodayEvents(events);
 
-        // Fetch total students
-        const usersQuery = query(collection(db, "users"), where("role", "==", "student"));
-        const usersSnapshot = await getDocs(usersQuery);
-        const totalStudents = usersSnapshot.size;
+        // Fetch total students (case-insensitive check for both "student" and "Student")
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const totalStudents = usersSnapshot.docs.filter(doc => {
+          const role = doc.data().role;
+          return role && role.toLowerCase() === "student";
+        }).length;
 
         // Fetch total attendance
         const attendanceSnapshot = await getDocs(collection(db, "attendance"));

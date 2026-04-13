@@ -145,6 +145,15 @@ export default function StudentDashboardPage() {
     }
   };
 
+  // Helper to format time with AM/PM
+  const formatTime = (timeString: string | undefined) => {
+    if (!timeString) return 'N/A';
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
   return (
     <ProtectedRoute allowedRole="student">
       <div className="flex min-h-screen bg-gray-100">
@@ -202,7 +211,7 @@ export default function StudentDashboardPage() {
                 <div>
                   <h2 className="text-xl font-semibold mb-2">Today's Event</h2>
                   <p className="text-gray-600">
-                    {todayEvent.eventName} at {(todayEvent.timeIn || todayEvent.time)} - {(todayEvent.timeOut || todayEvent.time)}
+                    {todayEvent.eventName} at {formatTime(todayEvent.timeIn || todayEvent.time)} - {formatTime(todayEvent.timeOut || todayEvent.time)}
                   </p>
                   <p className="text-gray-500 text-sm">
                     Location: {todayEvent.location}

@@ -133,6 +133,15 @@ export default function StaffEventsPage() {
     return new Date(dateString).toLocaleDateString();
   };
 
+  // Helper to format time with AM/PM
+  const formatTime = (timeString: string | undefined) => {
+    if (!timeString) return 'N/A';
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
   return (
     <ProtectedRoute allowedRole="staff">
       <div className="flex min-h-screen bg-gray-100">
@@ -304,7 +313,7 @@ export default function StaffEventsPage() {
                           {event.eventName}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(event.date)} | {(event.timeIn || event.time) || 'N/A'} - {(event.timeOut || event.time) || 'N/A'}
+                          {formatDate(event.date)} | {formatTime(event.timeIn || event.time)} - {formatTime(event.timeOut || event.time)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {event.location}
