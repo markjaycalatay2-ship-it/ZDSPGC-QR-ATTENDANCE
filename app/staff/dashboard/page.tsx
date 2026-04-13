@@ -218,6 +218,15 @@ export default function StaffDashboardPage() {
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         
         console.log("Fetching events for date:", today);
+        
+        // Fetch ALL events first to debug
+        const allEventsSnapshot = await getDocs(collection(db, "events"));
+        console.log("All events in database:", allEventsSnapshot.size);
+        allEventsSnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log("Event in DB:", doc.id, "Name:", data.eventName, "Date:", data.date, "Expected:", today, "Match:", data.date === today);
+        });
+        
         const eventsQuery = query(
           collection(db, "events"),
           where("date", "==", today),
@@ -227,18 +236,24 @@ export default function StaffDashboardPage() {
         const events: Event[] = [];
         eventsSnapshot.forEach((doc) => {
           const data = doc.data();
-          console.log("Event found:", doc.id, data.eventName, "Date:", data.date, "TimeIn:", data.timeIn, "TimeOut:", data.timeOut);
+          console.log("Today's event found:", doc.id, data.eventName, "Date:", data.date, "TimeIn:", data.timeIn, "TimeOut:", data.timeOut);
           events.push({ id: doc.id, ...data } as Event);
         });
-        console.log("Total events found:", events.length);
+        console.log("Total today's events found:", events.length);
         setTodayEvents(events);
 
         // Fetch total students (case-insensitive check for both "student" and "Student")
         const usersSnapshot = await getDocs(collection(db, "users"));
+        console.log("All users in database:", usersSnapshot.size);
+        usersSnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log("User:", doc.id, "Role:", data.role, "Email:", data.email);
+        });
         const totalStudents = usersSnapshot.docs.filter(doc => {
           const role = doc.data().role;
           return role && role.toLowerCase() === "student";
         }).length;
+        console.log("Total students found:", totalStudents);
 
         // Fetch total attendance
         const attendanceSnapshot = await getDocs(collection(db, "attendance"));
@@ -247,8 +262,15 @@ export default function StaffDashboardPage() {
         // Set stats
         setStats({
           totalStudents,
-          totalAttendance,
+          totalAttendance: attendanceSnapshot.size,
           activeEvents: events.length,
+        });
+        
+        console.log("Dashboard stats updated:", {
+          totalStudents,
+          totalAttendance: attendanceSnapshot.size,
+          activeEvents: events.length,
+          todayEventsState: events.length
         });
 
         // Fetch recent attendance records
@@ -320,7 +342,7 @@ export default function StaffDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Events with QR - Takes up 2 columns */}
               <div className="lg:col-span-2">
-                <h2 className="text-lg font-semibold text-gray-800 mb-6">Today's Events</h2>
+                <h2 className="text-lg font-semibold text-gray-800 mb-6">Today's Events ({todayEvents.length})</h2>
                 <div className="grid grid-cols-1 gap-6">
                   {todayEvents.map((event) => (
                     <EventCard key={event.id} event={event} />
