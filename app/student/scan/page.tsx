@@ -91,7 +91,9 @@ export default function StudentScanPage() {
       }
 
       const eventInfo = eventDoc.data();
-      const today = new Date().toISOString().split('T')[0];
+      // Get today's date in local timezone (YYYY-MM-DD format)
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       
       if (eventInfo.date !== today) {
         setStatus("error");
@@ -115,8 +117,8 @@ export default function StudentScanPage() {
       }
 
       // Check time windows for late marking
-      const now = new Date();
-      const scanTime = now.getTime();
+      const scanNow = new Date();
+      const scanTime = scanNow.getTime();
       let attendanceStatus: "present" | "late" = "present";
       let lateReason = "";
 

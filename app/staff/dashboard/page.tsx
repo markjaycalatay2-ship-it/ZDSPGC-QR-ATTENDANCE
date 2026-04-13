@@ -213,7 +213,9 @@ export default function StaffDashboardPage() {
     const fetchDashboardData = async () => {
       try {
         const db = getFirebaseDb();
-        const today = new Date().toISOString().split('T')[0];
+        // Get today's date in local timezone (YYYY-MM-DD format)
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         
         console.log("Fetching events for date:", today);
         const eventsQuery = query(
