@@ -11,7 +11,8 @@ interface AddEventFormProps {
 export function AddEventForm({ onEventAdded }: AddEventFormProps) {
   const [eventName, setEventName] = useState("");
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [timeIn, setTimeIn] = useState("");
+  const [timeOut, setTimeOut] = useState("");
   const [location, setLocation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -25,10 +26,19 @@ export function AddEventForm({ onEventAdded }: AddEventFormProps) {
 
     try {
       const db = getFirebaseDb();
+      // Calculate time windows (1 hour duration for each)
+      const timeInDate = new Date(`${date}T${timeIn}`);
+      const timeOutDate = new Date(`${date}T${timeOut}`);
+      const timeInWindowEnd = new Date(timeInDate.getTime() + 60 * 60 * 1000); // +1 hour
+      const timeOutWindowEnd = new Date(timeOutDate.getTime() + 60 * 60 * 1000); // +1 hour
+
       await addDoc(collection(db, "events"), {
         eventName,
         date,
-        time,
+        timeIn,
+        timeOut,
+        timeInWindowEnd: timeInWindowEnd.toISOString(),
+        timeOutWindowEnd: timeOutWindowEnd.toISOString(),
         location,
         latitude: 0,
         longitude: 0,
@@ -39,7 +49,8 @@ export function AddEventForm({ onEventAdded }: AddEventFormProps) {
       setSuccess("Event created successfully!");
       setEventName("");
       setDate("");
-      setTime("");
+      setTimeIn("");
+      setTimeOut("");
       setLocation("");
       onEventAdded();
     } catch (err) {
@@ -95,14 +106,28 @@ export function AddEventForm({ onEventAdded }: AddEventFormProps) {
         </div>
 
         <div>
-          <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
-            Time
+          <label htmlFor="timeIn" className="block text-sm font-medium text-gray-700 mb-1">
+            Time In <span className="text-xs text-gray-500">(Start time - 1hr window)</span>
           </label>
           <input
-            id="time"
+            id="timeIn"
             type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
+            value={timeIn}
+            onChange={(e) => setTimeIn(e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="timeOut" className="block text-sm font-medium text-gray-700 mb-1">
+            Time Out <span className="text-xs text-gray-500">(End time - 1hr window)</span>
+          </label>
+          <input
+            id="timeOut"
+            type="time"
+            value={timeOut}
+            onChange={(e) => setTimeOut(e.target.value)}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />

@@ -13,7 +13,10 @@ interface Event {
   id: string;
   eventName: string;
   date: string;
-  time: string;
+  timeIn: string;
+  timeOut: string;
+  timeInWindowEnd?: string;
+  timeOutWindowEnd?: string;
   location: string;
 }
 
@@ -312,22 +315,6 @@ export default function StaffDashboardPage() {
                                 <span className="text-emerald-600 font-semibold text-sm">
                                   {record.studentName.charAt(0).toUpperCase()}
                                 </span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-800 truncate">
-                                  {record.studentName}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {record.eventName}
-                                </p>
-                                <p className="text-xs text-gray-400">
-                                  {new Date(record.scannedAt).toLocaleTimeString('en-US', {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  })}
-                                </p>
-                              </div>
-                              <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
                                 {record.status}
                               </span>
                             </div>

@@ -114,6 +114,39 @@ export default function StudentScanPage() {
         return;
       }
 
+      // Check time windows for late marking
+      const now = new Date();
+      const scanTime = now.getTime();
+      let attendanceStatus: "present" | "late" = "present";
+      let lateReason = "";
+
+      // Get time windows from event
+      const timeInWindowEnd = eventInfo.timeInWindowEnd ? new Date(eventInfo.timeInWindowEnd).getTime() : null;
+      const timeOutWindowEnd = eventInfo.timeOutWindowEnd ? new Date(eventInfo.timeOutWindowEnd).getTime() : null;
+      const timeInStart = eventInfo.timeIn ? new Date(`${today}T${eventInfo.timeIn}`).getTime() : null;
+      const timeOutStart = eventInfo.timeOut ? new Date(`${today}T${eventInfo.timeOut}`).getTime() : null;
+
+      if (timeInStart && timeOutStart) {
+        // Check if scanned during time-in window (timeIn to timeIn + 1hr)
+        if (scanTime >= timeInStart && timeInWindowEnd && scanTime <= timeInWindowEnd) {
+          attendanceStatus = "present";
+        }
+        // Check if scanned during time-out window (timeOut to timeOut + 1hr)
+        else if (scanTime >= timeOutStart && timeOutWindowEnd && scanTime <= timeOutWindowEnd) {
+          attendanceStatus = "present";
+        }
+        // If scanned before time-in or after both windows, mark as late
+        else if (scanTime < timeInStart || (timeOutWindowEnd && scanTime > timeOutWindowEnd)) {
+          attendanceStatus = "late";
+          lateReason = scanTime < timeInStart ? "Scanned before event start" : "Scanned after event ended";
+        }
+        // If scanned between timeIn window and timeOut window, mark as late
+        else {
+          attendanceStatus = "late";
+          lateReason = "Scanned outside allowed time windows";
+        }
+      }
+
       // Record attendance
       await addDoc(collection(db, "attendance"), {
         studentId: user.uid,
@@ -123,11 +156,16 @@ export default function StudentScanPage() {
         eventName: eventName || eventInfo.eventName,
         date: today,
         timestamp: new Date().toISOString(),
-        status: "present",
+        status: attendanceStatus,
+        lateReason: lateReason || null,
       });
 
       setStatus("success");
-      setMessage(`Attendance recorded for ${eventInfo.eventName}!`);
+      if (attendanceStatus === "present") {
+        setMessage(`Attendance recorded for ${eventInfo.eventName}!`);
+      } else {
+        setMessage(`Attendance recorded as LATE for ${eventInfo.eventName}. ${lateReason}`);
+      }
     } catch (err) {
       console.error("Error:", err);
       setStatus("error");

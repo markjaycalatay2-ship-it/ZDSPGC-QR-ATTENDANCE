@@ -12,7 +12,10 @@ interface Event {
   id: string;
   eventName: string;
   date: string;
-  time: string;
+  timeIn: string;
+  timeOut: string;
+  timeInWindowEnd?: string;
+  timeOutWindowEnd?: string;
   location: string;
   latitude: number;
   longitude: number;
@@ -31,7 +34,8 @@ export default function StaffEventsPage() {
   const [formData, setFormData] = useState({
     eventName: "",
     date: "",
-    time: "",
+    timeIn: "",
+    timeOut: "",
     location: "",
     description: "",
   });
@@ -62,8 +66,17 @@ export default function StaffEventsPage() {
     
     try {
       const db = getFirebaseDb();
+      
+      // Calculate time windows (1 hour duration for each)
+      const timeInDate = new Date(`${formData.date}T${formData.timeIn}`);
+      const timeOutDate = new Date(`${formData.date}T${formData.timeOut}`);
+      const timeInWindowEnd = new Date(timeInDate.getTime() + 60 * 60 * 1000); // +1 hour
+      const timeOutWindowEnd = new Date(timeOutDate.getTime() + 60 * 60 * 1000); // +1 hour
+      
       await addDoc(collection(db, "events"), {
         ...formData,
+        timeInWindowEnd: timeInWindowEnd.toISOString(),
+        timeOutWindowEnd: timeOutWindowEnd.toISOString(),
         createdAt: Timestamp.now().toDate().toISOString(),
         latitude: 0,
         longitude: 0,
@@ -78,7 +91,8 @@ export default function StaffEventsPage() {
       setFormData({
         eventName: "",
         date: "",
-        time: "",
+        timeIn: "",
+        timeOut: "",
         location: "",
         description: "",
       });
@@ -172,23 +186,38 @@ export default function StaffEventsPage() {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    <input
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Time In <span className="text-xs text-gray-500">(1hr window)</span>
+                      </label>
                       <input
-                        type="date"
-                        value={formData.date}
-                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                        type="time"
+                        value={formData.timeIn}
+                        onChange={(e) => setFormData({ ...formData, timeIn: e.target.value })}
                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Time Out <span className="text-xs text-gray-500">(1hr window)</span>
+                      </label>
                       <input
                         type="time"
-                        value={formData.time}
-                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                        value={formData.timeOut}
+                        onChange={(e) => setFormData({ ...formData, timeOut: e.target.value })}
                         className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         required
                       />
