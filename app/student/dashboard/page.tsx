@@ -14,8 +14,9 @@ interface Event {
   id: string;
   eventName: string;
   date: string;
-  timeIn: string;
-  timeOut: string;
+  timeIn?: string;
+  timeOut?: string;
+  time?: string; // For backward compatibility with old events
   location: string;
 }
 
@@ -201,7 +202,7 @@ export default function StudentDashboardPage() {
                 <div>
                   <h2 className="text-xl font-semibold mb-2">Today's Event</h2>
                   <p className="text-gray-600">
-                    {todayEvent.eventName} at {todayEvent.timeIn} - {todayEvent.timeOut}
+                    {todayEvent.eventName} at {(todayEvent.timeIn || todayEvent.time)} - {(todayEvent.timeOut || todayEvent.time)}
                   </p>
                   <p className="text-gray-500 text-sm">
                     Location: {todayEvent.location}

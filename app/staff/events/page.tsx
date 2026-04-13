@@ -12,8 +12,9 @@ interface Event {
   id: string;
   eventName: string;
   date: string;
-  timeIn: string;
-  timeOut: string;
+  timeIn?: string;
+  timeOut?: string;
+  time?: string; // For backward compatibility with old events
   timeInWindowEnd?: string;
   timeOutWindowEnd?: string;
   location: string;
@@ -303,7 +304,7 @@ export default function StaffEventsPage() {
                           {event.eventName}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(event.date)} | In: {event.timeIn} - Out: {event.timeOut}
+                          {formatDate(event.date)} | {(event.timeIn || event.time) || 'N/A'} - {(event.timeOut || event.time) || 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {event.location}

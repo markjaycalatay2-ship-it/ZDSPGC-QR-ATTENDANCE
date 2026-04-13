@@ -13,8 +13,9 @@ interface Event {
   id: string;
   eventName: string;
   date: string;
-  timeIn: string;
-  timeOut: string;
+  timeIn?: string;
+  timeOut?: string;
+  time?: string; // For backward compatibility with old events
   timeInWindowEnd?: string;
   timeOutWindowEnd?: string;
   location: string;
@@ -114,10 +115,12 @@ function EventCard({ event }: EventCardProps) {
     <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
       <div className="mb-4">
         <h2 className="text-lg font-bold text-gray-800">{event.eventName}</h2>
-        <p className="text-sm text-gray-500">{event.timeIn} - {event.timeOut} • {event.location}</p>
+        <p className="text-sm text-gray-500">
+          {(event.timeIn || event.time)} - {(event.timeOut || event.time)} • {event.location}
+        </p>
         <div className="mt-2 text-xs text-gray-400">
-          <p>Time In Window: {event.timeIn} - {new Date(event.timeInWindowEnd || '').toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true})}</p>
-          <p>Time Out Window: {event.timeOut} - {new Date(event.timeOutWindowEnd || '').toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true})}</p>
+          <p>Time In: {event.timeIn || event.time} (1hr window)</p>
+          <p>Time Out: {event.timeOut || event.time} (1hr window)</p>
         </div>
       </div>
 
