@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { doc, deleteDoc } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
-import { QRCodeModal } from "./QRCodeModal";
 
 interface Event {
   id: string;
@@ -24,7 +23,6 @@ interface EventsTableProps {
 
 export function EventsTable({ events, onEventDeleted }: EventsTableProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [qrEvent, setQrEvent] = useState<Event | null>(null);
 
   const handleDelete = async (eventId: string) => {
     if (!confirm("Are you sure you want to delete this event?")) return;
@@ -97,13 +95,7 @@ export function EventsTable({ events, onEventDeleted }: EventsTableProps) {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {event.radius}m
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
-                  <button
-                    onClick={() => setQrEvent(event)}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    View QR
-                  </button>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                   <button
                     onClick={() => handleDelete(event.id)}
                     disabled={deletingId === event.id}
@@ -118,14 +110,6 @@ export function EventsTable({ events, onEventDeleted }: EventsTableProps) {
         </table>
       </div>
 
-      {qrEvent && (
-        <QRCodeModal
-          eventId={qrEvent.id}
-          eventName={qrEvent.eventName}
-          isOpen={!!qrEvent}
-          onClose={() => setQrEvent(null)}
-        />
-      )}
     </div>
   );
 }
