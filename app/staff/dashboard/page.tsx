@@ -114,7 +114,7 @@ function EventCard({ event }: EventCardProps) {
     <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
       <div className="mb-4">
         <h2 className="text-lg font-bold text-gray-800">{event.eventName}</h2>
-        <p className="text-sm text-gray-500">{event.time} • {event.location}</p>
+        <p className="text-sm text-gray-500">{event.timeIn} - {event.timeOut} • {event.location}</p>
       </div>
 
       {!showQR ? (
@@ -315,6 +315,28 @@ export default function StaffDashboardPage() {
                                 <span className="text-emerald-600 font-semibold text-sm">
                                   {record.studentName.charAt(0).toUpperCase()}
                                 </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-gray-800 truncate">
+                                  {record.studentName}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {record.eventName}
+                                </p>
+                                <p className="text-xs text-gray-400">
+                                  {new Date(record.scannedAt).toLocaleTimeString('en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                              </div>
+                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                record.status === 'present' 
+                                  ? 'bg-emerald-100 text-emerald-700' 
+                                  : record.status === 'late'
+                                  ? 'bg-yellow-100 text-yellow-700'
+                                  : 'bg-red-100 text-red-700'
+                              }`}>
                                 {record.status}
                               </span>
                             </div>
