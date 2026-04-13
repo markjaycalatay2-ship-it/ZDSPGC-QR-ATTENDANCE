@@ -120,14 +120,6 @@ function EventCard({ event }: EventCardProps) {
     return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
 
-  const formatTimeWithPeriod = (timeString: string | undefined) => {
-    if (!timeString) return 'N/A';
-    const [hours, minutes] = timeString.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours % 12 || 12;
-    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
-  };
-
   return (
     <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
       <div className="mb-4">
