@@ -12,7 +12,9 @@ interface Event {
   id: string;
   eventName: string;
   date: string;
-  time: string;
+  timeIn?: string;
+  timeOut?: string;
+  time?: string; // For backward compatibility with old events
   location: string;
   description?: string;
 }
@@ -192,7 +194,7 @@ export default function StudentEventsPage() {
                               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          <span className="text-sm">{event.time}</span>
+                          <span className="text-sm">{(event.timeIn || event.time) || 'N/A'} - {(event.timeOut || event.time) || 'N/A'}</span>
                         </div>
 
                         <div className="flex items-center gap-2 text-gray-600">
