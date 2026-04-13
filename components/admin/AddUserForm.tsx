@@ -12,6 +12,7 @@ interface AddUserFormProps {
 
 export function AddUserForm({ onUserAdded }: AddUserFormProps) {
   const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [studentId, setStudentId] = useState("");
   const [course, setCourse] = useState("");
   const [role, setRole] = useState<UserRole>("student");
@@ -29,6 +30,7 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
       const db = getFirebaseDb();
       await addDoc(collection(db, "users"), {
         fullName,
+        email,
         studentId,
         course,
         role,
@@ -37,6 +39,7 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
 
       setSuccess("User added successfully!");
       setFullName("");
+      setEmail("");
       setStudentId("");
       setCourse("");
       setRole("student");
@@ -75,6 +78,21 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            Gmail Account
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="example@gmail.com"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

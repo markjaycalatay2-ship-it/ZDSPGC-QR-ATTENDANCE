@@ -13,9 +13,6 @@ export function AddEventForm({ onEventAdded }: AddEventFormProps) {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [location, setLocation] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
-  const [radius, setRadius] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -33,9 +30,9 @@ export function AddEventForm({ onEventAdded }: AddEventFormProps) {
         date,
         time,
         location,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        radius: parseInt(radius, 10),
+        latitude: 0,
+        longitude: 0,
+        radius: 50,
         createdAt: new Date().toISOString(),
       });
 
@@ -44,9 +41,6 @@ export function AddEventForm({ onEventAdded }: AddEventFormProps) {
       setDate("");
       setTime("");
       setLocation("");
-      setLatitude("");
-      setLongitude("");
-      setRadius("");
       onEventAdded();
     } catch (err) {
       setError("Failed to create event. Please try again.");
@@ -114,7 +108,7 @@ export function AddEventForm({ onEventAdded }: AddEventFormProps) {
           />
         </div>
 
-        <div>
+        <div className="md:col-span-3">
           <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
             Location
           </label>
@@ -123,51 +117,6 @@ export function AddEventForm({ onEventAdded }: AddEventFormProps) {
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="latitude" className="block text-sm font-medium text-gray-700 mb-1">
-            Latitude
-          </label>
-          <input
-            id="latitude"
-            type="number"
-            step="any"
-            value={latitude}
-            onChange={(e) => setLatitude(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="longitude" className="block text-sm font-medium text-gray-700 mb-1">
-            Longitude
-          </label>
-          <input
-            id="longitude"
-            type="number"
-            step="any"
-            value={longitude}
-            onChange={(e) => setLongitude(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="radius" className="block text-sm font-medium text-gray-700 mb-1">
-            Allowed Radius (meters)
-          </label>
-          <input
-            id="radius"
-            type="number"
-            min="1"
-            value={radius}
-            onChange={(e) => setRadius(e.target.value)}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
