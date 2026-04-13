@@ -152,6 +152,7 @@ export default function StudentScanPage() {
         studentId: user.uid,
         studentName: studentData.fullName,
         studentIdNumber: studentData.studentId,
+        course: studentData.course || "Unknown",
         eventId,
         eventName: eventName || eventInfo.eventName,
         date: today,

@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, orderBy, onSnapshot, doc, getDoc } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy, getDoc, doc } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { StaffSidebar } from "@/components/staff/StaffSidebar";
+
+const COURSES = ["BSIS", "BPED", "ACT", "BSED", "BEED"];
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +92,7 @@ interface AttendanceRecord {
 export default function LiveMonitoringPage() {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCourse, setSelectedCourse] = useState<string>("All");
 
   useEffect(() => {
     const db = getFirebaseDb();
@@ -154,6 +157,14 @@ export default function LiveMonitoringPage() {
     window.print();
   };
 
+  // Filter records by selected course
+  const filteredRecords = selectedCourse === "All" 
+    ? attendanceRecords 
+    : attendanceRecords.filter(record => record.course === selectedCourse);
+
+  // Get unique courses from records for dynamic filter buttons
+  const availableCourses = Array.from(new Set(attendanceRecords.map(r => r.course).filter(c => c && c !== "Unknown")));
+
   return (
     <ProtectedRoute allowedRole="staff">
       <style>{printStyles}</style>
@@ -172,6 +183,36 @@ export default function LiveMonitoringPage() {
             </div>
           </div>
 
+          {/* Course Filter Buttons */}
+          <div className="mb-6">
+            <p className="text-sm text-gray-600 mb-3">Filter by Course:</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedCourse("All")}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  selectedCourse === "All"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                All Courses
+              </button>
+              {availableCourses.map((course) => (
+                <button
+                  key={course}
+                  onClick={() => setSelectedCourse(course)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    selectedCourse === course
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                  }`}
+                >
+                  {course}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {isLoading ? (
             <div className="text-center py-8">
               <div className="text-gray-500">Loading attendance data...</div>
@@ -186,7 +227,7 @@ export default function LiveMonitoringPage() {
               <div className="print-header px-6 pt-6">
                 <h2>Attendance Report</h2>
                 <p>Generated on: {new Date().toLocaleString()}</p>
-                <p>Total Records: {attendanceRecords.length}</p>
+                <p>Total Records: {filteredRecords.length}</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -213,7 +254,7 @@ export default function LiveMonitoringPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {attendanceRecords.map((record) => (
+                    {filteredRecords.map((record) => (
                       <tr key={record.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <div className="font-medium">{formatTime(record.scannedAt)}</div>
@@ -232,7 +273,15 @@ export default function LiveMonitoringPage() {
                           {record.eventName}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            record.status === "present"
+                              ? "bg-green-100 text-green-800"
+                              : record.status === "late"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : record.status === "absent"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}>
                             {record.status}
                           </span>
                         </td>
