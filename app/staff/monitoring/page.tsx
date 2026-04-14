@@ -87,6 +87,7 @@ interface AttendanceRecord {
   eventName: string;
   scannedAt: string;
   status: string;
+  scanned?: boolean;
 }
 
 export default function LiveMonitoringPage() {
@@ -273,16 +274,16 @@ export default function LiveMonitoringPage() {
                           {record.eventName}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            record.status === "present"
-                              ? "bg-green-100 text-green-800"
+                          <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            record.status === "present" || record.scanned
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                               : record.status === "late"
-                              ? "bg-yellow-100 text-yellow-800"
+                              ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
                               : record.status === "absent"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-800"
+                              ? "bg-red-100 text-red-800 border border-red-200"
+                              : "bg-gray-100 text-gray-800 border border-gray-200"
                           }`}>
-                            {record.status}
+                            {record.scanned || record.status === "present" ? "Attended" : record.status}
                           </span>
                         </td>
                       </tr>

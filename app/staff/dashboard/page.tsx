@@ -21,13 +21,13 @@ interface Event {
   location: string;
 }
 
-interface AttendanceRecord {
+interface RecentAttendance {
   id: string;
-  studentId: string;
-  studentName: string;
-  eventName: string;
-  scannedAt: string;
-  status: string;
+  type: 'check-in' | 'check-out';
+  name: string;
+  event: string;
+  time: string;
+  status: 'present' | 'late' | 'absent';
 }
 
 interface StatsCardProps {
@@ -193,7 +193,7 @@ function EventCard({ event }: EventCardProps) {
 
 export default function StaffDashboardPage() {
   const [todayEvents, setTodayEvents] = useState<Event[]>([]);
-  const [recentAttendance, setRecentAttendance] = useState<AttendanceRecord[]>([]);
+  const [recentAttendance, setRecentAttendance] = useState<RecentAttendance[]>([]);
   const [stats, setStats] = useState({
     totalStudents: 0,
     totalAttendance: 0,
@@ -267,25 +267,27 @@ export default function StaffDashboardPage() {
         });
 
         // Fetch recent attendance records
-        const recentAttendanceQuery = query(
+        const attendanceQuery = query(
           collection(db, "attendance"),
-          orderBy("scannedAt", "desc"),
-          limit(10)
+          orderBy("timestamp", "desc"),
+          limit(5)
         );
-        const recentSnapshot = await getDocs(recentAttendanceQuery);
-        const recent: AttendanceRecord[] = [];
-        recentSnapshot.forEach((doc) => {
+        const attendanceSnapshot = await getDocs(attendanceQuery);
+        const attendanceCount = attendanceSnapshot.size;
+
+        const attendanceRecords: RecentAttendance[] = [];
+        attendanceSnapshot.forEach((doc) => {
           const data = doc.data();
-          recent.push({
+          attendanceRecords.push({
             id: doc.id,
-            studentId: data.studentId || "N/A",
-            studentName: data.studentName || "Unknown",
-            eventName: data.eventName || "Unknown Event",
-            scannedAt: data.scannedAt || new Date().toISOString(),
+            type: data.type || 'check-in',
+            name: data.studentName || "Unknown Student",
+            event: data.eventName || "Unknown Event",
+            time: data.timestamp || new Date().toISOString(),
             status: data.status || "present",
           });
         });
-        setRecentAttendance(recent);
+        setRecentAttendance(attendanceRecords);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
       } finally {
@@ -345,55 +347,58 @@ export default function StaffDashboardPage() {
 
               {/* Recent Attendance - Takes up 1 column */}
               <div className="lg:col-span-1">
-                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                  <div className="p-4 border-b border-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-800">Recent Attendance</h2>
-                    <p className="text-sm text-gray-500">Latest recorded attendance</p>
+                {/* Recent Attendance */}
+                <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+                  <div className="p-6 border-b border-slate-100">
+                    <h2 className="text-xl font-bold text-slate-800">Recent Attendance</h2>
+                    <p className="text-slate-500 text-sm">Latest attendance records from students</p>
                   </div>
-                  <div className="max-h-[600px] overflow-y-auto">
-                    {recentAttendance.length > 0 ? (
-                      <div className="divide-y divide-gray-100">
-                        {recentAttendance.map((record) => (
-                          <div key={record.id} className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <span className="text-emerald-600 font-semibold text-sm">
-                                  {record.studentName.charAt(0).toUpperCase()}
-                                </span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-800 truncate">
-                                  {record.studentName}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {record.eventName}
-                                </p>
-                                <p className="text-xs text-gray-400">
-                                  {new Date(record.scannedAt).toLocaleTimeString('en-US', {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  })}
-                                </p>
-                              </div>
-                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                record.status === 'present' 
-                                  ? 'bg-emerald-100 text-emerald-700' 
-                                  : record.status === 'late'
-                                  ? 'bg-yellow-100 text-yellow-700'
-                                  : 'bg-red-100 text-red-700'
+                  
+                  {recentAttendance.length === 0 ? (
+                    <div className="p-8 text-center">
+                      <div className="text-4xl mb-4">📭</div>
+                      <p className="text-slate-500">No recent attendance found.</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-100">
+                      {recentAttendance.map((record) => (
+                        <div key={record.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                              record.status === 'present' ? 'bg-emerald-100' : 
+                              record.status === 'late' ? 'bg-yellow-100' : 'bg-red-100'
+                            }`}>
+                              <span className={`font-semibold text-sm ${
+                                record.status === 'present' ? 'text-emerald-600' : 
+                                record.status === 'late' ? 'text-yellow-600' : 'text-red-600'
                               }`}>
-                                {record.status}
+                                {record.name.charAt(0).toUpperCase()}
                               </span>
                             </div>
+                            <div>
+                              <p className="font-medium text-slate-800">{record.name}</p>
+                              <p className="text-sm text-slate-500">{record.event}</p>
+                              <p className="text-xs text-slate-400">
+                                {new Date(record.time).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </p>
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-8 text-center">
-                        <p className="text-gray-500">No recent attendance records</p>
-                      </div>
-                    )}
-                  </div>
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            record.status === 'present' 
+                              ? 'bg-emerald-100 text-emerald-700' 
+                              : record.status === 'late'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-red-100 text-red-700'
+                          }`}>
+                            {record.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
