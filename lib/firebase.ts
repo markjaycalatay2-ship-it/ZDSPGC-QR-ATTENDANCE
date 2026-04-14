@@ -39,4 +39,17 @@ export function getFirebaseDb(): Firestore {
   return db;
 }
 
+// Initialize on client side immediately
+if (typeof window !== "undefined") {
+  if (!app) {
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  }
+  if (!auth) {
+    auth = getAuth(app);
+  }
+  if (!db) {
+    db = getFirestore(app);
+  }
+}
+
 export { app, auth, db };

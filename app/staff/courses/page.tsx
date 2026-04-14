@@ -1,7 +1,10 @@
 "use client";
 
+// Fix: Use getFirebaseDb() instead of direct db import to avoid null errors
 import { useState, useEffect } from "react";
-import { db } from "@/lib/firebase";
+
+import { getFirebaseDb } from "@/lib/firebase";
+import type { Firestore } from "firebase/firestore";
 import { collection, query, where, getDocs, orderBy, onSnapshot } from "firebase/firestore";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { StaffSidebar } from "@/components/staff/StaffSidebar";
@@ -49,8 +52,9 @@ export default function CourseAttendancePage() {
   // Fetch all students
   useEffect(() => {
     const fetchStudents = async () => {
+      const firestore = getFirebaseDb();
       const studentsQuery = query(
-        collection(db, "users"),
+        collection(firestore, "users"),
         where("role", "in", ["Student", "student"])
       );
       const snapshot = await getDocs(studentsQuery);
@@ -76,8 +80,9 @@ export default function CourseAttendancePage() {
     const now = new Date();
     const today = now.toISOString().split("T")[0];
     
+    const firestore = getFirebaseDb();
     const eventsQuery = query(
-      collection(db, "events"),
+      collection(firestore, "events"),
       orderBy("createdAt", "desc")
     );
 
@@ -107,8 +112,9 @@ export default function CourseAttendancePage() {
   useEffect(() => {
     if (!selectedEvent) return;
 
+    const firestore = getFirebaseDb();
     const attendanceQuery = query(
-      collection(db, "attendance"),
+      collection(firestore, "attendance"),
       where("eventId", "==", selectedEvent),
       orderBy("timestamp", "desc")
     );
