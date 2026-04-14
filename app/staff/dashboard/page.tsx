@@ -219,9 +219,10 @@ export default function StaffDashboardPage() {
           console.log("Event in DB:", doc.id, "Name:", data.eventName, "Date:", data.date, "Expected:", today, "Match:", data.date === today);
         });
         
+        // TEMPORARY: Show ALL events regardless of date for debugging
+        // TODO: Change back to date filter after testing
         const eventsQuery = query(
           collection(db, "events"),
-          where("date", "==", today),
           orderBy("createdAt", "desc")
         );
         const eventsSnapshot = await getDocs(eventsQuery);
