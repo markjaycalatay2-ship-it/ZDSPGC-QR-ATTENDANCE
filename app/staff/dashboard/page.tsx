@@ -267,18 +267,18 @@ export default function StaffDashboardPage() {
         });
 
         // Fetch recent attendance records
-        const attendanceQuery = query(
+        const recentAttendanceQuery = query(
           collection(db, "attendance"),
           orderBy("timestamp", "desc"),
           limit(5)
         );
-        const attendanceSnapshot = await getDocs(attendanceQuery);
-        const attendanceCount = attendanceSnapshot.size;
+        const recentAttendanceSnapshot = await getDocs(recentAttendanceQuery);
+        const attendanceCount = recentAttendanceSnapshot.size;
 
-        const attendanceRecords: RecentAttendance[] = [];
-        attendanceSnapshot.forEach((doc) => {
+        const recentAttendanceRecords: RecentAttendance[] = [];
+        recentAttendanceSnapshot.forEach((doc) => {
           const data = doc.data();
-          attendanceRecords.push({
+          recentAttendanceRecords.push({
             id: doc.id,
             type: data.type || 'check-in',
             name: data.studentName || "Unknown Student",
@@ -287,7 +287,7 @@ export default function StaffDashboardPage() {
             status: data.status || "present",
           });
         });
-        setRecentAttendance(attendanceRecords);
+        setRecentAttendance(recentAttendanceRecords);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
       } finally {
