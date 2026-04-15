@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
-const ROLES = ["Student", "Staff"];
+const ROLES = ["Student"];
 const COURSES = ["BSIS", "BPED", "ACT"];
 
 // Course configuration: years and sets

@@ -26,31 +26,47 @@ export default function StudentAttendancePage() {
 
   useEffect(() => {
     const fetchAttendance = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log("No user logged in");
+        return;
+      }
+
+      console.log("=== FETCHING ATTENDANCE HISTORY ===");
+      console.log("User UID:", user.uid);
 
       try {
         const db = getFirebaseDb();
 
-        // Fetch student data to get studentId
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        const studentData = userDoc.data();
-
-        // Fetch attendance records for this student
+        // Fetch ALL attendance records and filter client-side
         const attendanceQuery = query(
           collection(db, "attendance"),
-          where("studentId", "==", user.uid),
-          orderBy("timestamp", "desc")
+          where("studentId", "==", user.uid)
         );
+
+        console.log("Executing query...");
         const attendanceSnapshot = await getDocs(attendanceQuery);
+        console.log("Docs found:", attendanceSnapshot.size);
 
-        const attendanceList = attendanceSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as AttendanceRecord[];
+        const attendanceList = attendanceSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          console.log("Doc:", doc.id, data);
+          return {
+            id: doc.id,
+            ...data,
+          };
+        }) as AttendanceRecord[];
 
+        // Sort by timestamp (newest first)
+        attendanceList.sort((a, b) => {
+          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+        });
+
+        console.log("Final attendance list:", attendanceList);
         setAttendance(attendanceList);
-      } catch (err) {
-        console.error("Error fetching attendance:", err);
+      } catch (err: any) {
+        console.error("❌ Error fetching attendance:", err);
+        console.error("Error code:", err.code);
+        console.error("Error message:", err.message);
       } finally {
         setIsLoading(false);
       }

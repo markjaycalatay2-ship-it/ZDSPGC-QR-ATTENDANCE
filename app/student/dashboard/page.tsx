@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, onSnapshot } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { StudentSidebar } from "@/components/student/StudentSidebar";
@@ -38,6 +38,89 @@ export default function StudentDashboardPage() {
     total: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+  const [updateNotification, setUpdateNotification] = useState<string>("");
+
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const db = getFirebaseDb();
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    console.log("=== ATTENDANCE LISTENER START ===");
+    console.log("User UID:", user.uid);
+
+    // Real-time listener filtered by studentId
+    const attendanceQuery = query(
+      collection(db, "attendance"),
+      where("studentId", "==", user.uid)
+    );
+
+    const unsubscribe = onSnapshot(attendanceQuery, (snapshot) => {
+      console.log("📊 Attendance docs found:", snapshot.size);
+      
+      let present = 0;
+      let late = 0;
+      let absent = 0;
+      let todayStatus = "not-marked";
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        console.log("📄 Doc:", doc.id, "Status:", data.status);
+        
+        const status = (data.status || "present").toLowerCase();
+        
+        if (status === "present") present++;
+        else if (status === "late") late++;
+        else if (status === "absent") absent++;
+
+        if (data.date === today) {
+          todayStatus = status;
+        }
+      });
+
+      console.log("✅ COUNTS:", { present, late, absent });
+
+      // Check if counts changed
+      const newTotal = present + late + absent;
+      if (newTotal !== attendanceStats.total && attendanceStats.total > 0) {
+        setUpdateNotification(`Attendance updated! Present: ${present}, Late: ${late}`);
+        setTimeout(() => setUpdateNotification(""), 3000);
+      }
+
+      setAttendanceStats({
+        present,
+        late,
+        absent,
+        total: newTotal,
+      });
+      setAttendanceStatus(todayStatus);
+      setLastUpdated(new Date().toLocaleTimeString());
+      setIsLoading(false);
+    }, (error) => {
+      console.error("❌ Error in attendance listener:", error);
+      setIsLoading(false);
+    });
+
+    // Fetch today's event
+    const loadEvent = async () => {
+      const eventsQuery = query(
+        collection(db, "events"),
+        where("date", "==", today)
+      );
+      const eventSnapshot = await getDocs(eventsQuery);
+      
+      if (!eventSnapshot.empty) {
+        const docSnapshot = eventSnapshot.docs[0];
+        setTodayEvent({ id: docSnapshot.id, ...docSnapshot.data() } as Event);
+      }
+    };
+
+    loadEvent();
+
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,6 +131,18 @@ export default function StudentDashboardPage() {
         // Get today's date in local timezone (YYYY-MM-DD format)
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        
+        // Fetch student's profile to get studentId
+        const userDocQuery = query(
+          collection(db, "users"),
+          where("uid", "==", user.uid)
+        );
+        const userSnapshot = await getDocs(userDocQuery);
+        let studentIdNumber = "";
+        if (!userSnapshot.empty) {
+          const userData = userSnapshot.docs[0].data();
+          studentIdNumber = userData.studentId || userData.idNumber || "";
+        }
         
         // Fetch today's events
         const eventsQuery = query(
@@ -63,31 +158,53 @@ export default function StudentDashboardPage() {
           setTodayEvent(event);
         }
 
-        // Fetch student's attendance history
-        const attendanceQuery = query(
+        // Fetch student's attendance history - try multiple ID fields
+        const attendanceQuery1 = query(
           collection(db, "attendance"),
           where("studentId", "==", user.uid)
         );
-        const attendanceSnapshot = await getDocs(attendanceQuery);
+        const attendanceQuery2 = query(
+          collection(db, "attendance"),
+          where("studentIdNumber", "==", studentIdNumber)
+        );
+        
+        const [snapshot1, snapshot2] = await Promise.all([
+          getDocs(attendanceQuery1),
+          getDocs(attendanceQuery2)
+        ]);
+        
+        // Merge results (avoid duplicates)
+        const attendanceDocs = new Map();
+        snapshot1.forEach((doc) => attendanceDocs.set(doc.id, doc));
+        snapshot2.forEach((doc) => attendanceDocs.set(doc.id, doc));
+        
+        console.log("Attendance docs count (by UID):", snapshot1.size);
+        console.log("Attendance docs count (by studentId):", snapshot2.size);
+        console.log("Total unique docs:", attendanceDocs.size);
+        console.log("User UID:", user?.uid);
+        console.log("Student ID Number:", studentIdNumber);
         
         let present = 0;
         let late = 0;
         let absent = 0;
         let todayStatus = "not-marked";
 
-        attendanceSnapshot.forEach((doc) => {
+        attendanceDocs.forEach((doc) => {
           const data = doc.data();
-          const status = data.status || "Present";
+          console.log("Attendance doc:", { id: doc.id, status: data.status, studentId: data.studentId, eventId: data.eventId });
+          const status = (data.status || "present").toLowerCase();
           
-          if (status === "Present") present++;
-          else if (status === "Late") late++;
-          else if (status === "Absent") absent++;
+          if (status === "present") present++;
+          else if (status === "late") late++;
+          else if (status === "absent") absent++;
 
           // Check if attendance is for today's event
           if (event && data.eventId === event.id && data.date === today) {
-            todayStatus = status.toLowerCase();
+            todayStatus = status;
           }
         });
+
+        console.log("Final counts:", { present, late, absent });
 
         setAttendanceStats({
           present,
@@ -162,15 +279,14 @@ export default function StudentDashboardPage() {
         <StudentSidebar />
 
         <main className="flex-1 p-8">
-          <h1 className="text-2xl font-bold mb-8">Student Dashboard</h1>
-
-          {/* Attendance Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div className="max-w-4xl mx-auto">
+            {/* Real-time update notification */}
+            {updateNotification && (
+              <div className="mb-4 p-4 bg-emerald-100 border border-emerald-400 rounded-lg flex items-center gap-2 animate-pulse">
+                <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-emerald-800 font-medium">{updateNotification}</span>
                   </svg>
                 </div>
                 <span className="text-sm font-medium text-gray-600">Present</span>
@@ -200,6 +316,17 @@ export default function StudentDashboardPage() {
                 <span className="text-sm font-medium text-gray-600">Absent</span>
               </div>
               <p className="text-3xl font-bold text-gray-800">{attendanceStats.absent}</p>
+            </div>
+          </div>
+
+          {/* Last Updated Indicator */}
+          <div className="mb-8 flex items-center justify-between">
+            <p className="text-sm text-gray-500">
+              Last updated: {lastUpdated || "Loading..."}
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-green-600 font-medium">Live updates enabled</span>
             </div>
           </div>
 

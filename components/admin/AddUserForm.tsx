@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
-import { getFirebaseDb } from "@/lib/firebase";
+import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { getFirebaseDb, getFirebaseAuth } from "@/lib/firebase";
 
 type UserRole = "admin" | "staff" | "student";
 
@@ -13,6 +14,7 @@ interface AddUserFormProps {
 export function AddUserForm({ onUserAdded }: AddUserFormProps) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [studentId, setStudentId] = useState("");
   const [course, setCourse] = useState("");
   const [role, setRole] = useState<UserRole>("student");
@@ -27,8 +29,15 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
     setIsLoading(true);
 
     try {
+      const auth = getFirebaseAuth();
       const db = getFirebaseDb();
-      await addDoc(collection(db, "users"), {
+
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser = userCredential.user;
+
+      // Add user details to Firestore
+      await setDoc(doc(db, "users", newUser.uid), {
         fullName,
         email,
         studentId,
@@ -40,12 +49,19 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
       setSuccess("User added successfully!");
       setFullName("");
       setEmail("");
+      setPassword("");
       setStudentId("");
       setCourse("");
       setRole("student");
       onUserAdded();
-    } catch (err) {
-      setError("Failed to add user. Please try again.");
+    } catch (err: any) {
+      if (err.code === "auth/email-already-in-use") {
+        setError("Email is already registered.");
+      } else if (err.code === "auth/weak-password") {
+        setError("Password should be at least 6 characters.");
+      } else {
+        setError("Failed to add user. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -93,6 +109,22 @@ export function AddUserForm({ onUserAdded }: AddUserFormProps) {
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="example@gmail.com"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            placeholder="Min 6 characters"
+            minLength={6}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
