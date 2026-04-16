@@ -164,7 +164,7 @@ export default function StudentDashboardPage() {
     }
   };
 
-  // Helper to format time with AM/PM - v2
+  // Helper to format time with AM/PM - v3 - 2026-04-16
   const formatTime = (timeString: string | undefined) => {
     // Format time helper
     if (!timeString) return 'N/A';
