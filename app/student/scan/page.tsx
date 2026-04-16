@@ -52,6 +52,14 @@ export default function StudentScanPage() {
         () => {}
       );
 
+      // Hide file scanning option
+      setTimeout(() => {
+        const fileInput = document.querySelector('#qr-reader input[type="file"]');
+        if (fileInput) {
+          fileInput.parentElement?.remove();
+        }
+      }, 100);
+
       return () => {
         scanner.clear().catch(() => {});
       };
