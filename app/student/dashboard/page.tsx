@@ -1,4 +1,5 @@
 "use client";
+// Dashboard for students - updated for fresh deploy
 
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, where, onSnapshot } from "firebase/firestore";
@@ -161,7 +162,7 @@ export default function StudentDashboardPage() {
           </div>
         );
     }
-  };
+  }, [user?.uid]);
 
   // Helper to format time with AM/PM
   const formatTime = (timeString: string | undefined) => {
