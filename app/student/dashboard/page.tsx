@@ -1,5 +1,4 @@
 "use client";
-// Dashboard for students - updated for fresh deploy
 
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, where, onSnapshot } from "firebase/firestore";
@@ -17,7 +16,7 @@ interface Event {
   date: string;
   timeIn?: string;
   timeOut?: string;
-  time?: string; // For backward compatibility with old events
+  time?: string;
   location: string;
 }
 
@@ -49,69 +48,62 @@ export default function StudentDashboardPage() {
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-    console.log("=== ATTENDANCE LISTENER START ===");
-    console.log("User UID:", user.uid);
-
-    // Real-time listener filtered by studentId
+    // Real-time listener for attendance stats
     const attendanceQuery = query(
       collection(db, "attendance"),
       where("studentId", "==", user.uid)
     );
 
-    const unsubscribe = onSnapshot(attendanceQuery, (snapshot) => {
-      console.log("📊 Attendance docs found:", snapshot.size);
+    const unsubscribeAttendance = onSnapshot(attendanceQuery, (snapshot) => {
+      console.log("=== ATTENDANCE SNAPSHOT ===");
+      console.log("Docs found:", snapshot.size);
       
-      let present = 0;
-      let late = 0;
-      let absent = 0;
-      let todayStatus = "not-marked";
+      let presentCount = 0;
+      let lateCount = 0;
+      let absentCount = 0;
 
-      snapshot.forEach((doc) => {
+      snapshot.docs.forEach((doc) => {
         const data = doc.data();
-        console.log("📄 Doc:", doc.id, "Status:", data.status);
-        
-        const status = (data.status || "present").toLowerCase();
-        
-        if (status === "present") present++;
-        else if (status === "late") late++;
-        else if (status === "absent") absent++;
+        const status = (data.status || "").toLowerCase();
+        console.log("Doc:", doc.id, "Status:", status);
 
-        if (data.date === today) {
-          todayStatus = status;
+        if (status === "present") {
+          presentCount++;
+        } else if (status === "late") {
+          lateCount++;
+        } else if (status === "absent") {
+          absentCount++;
         }
       });
 
-      console.log("✅ COUNTS:", { present, late, absent });
+      const newStats = {
+        present: presentCount,
+        late: lateCount,
+        absent: absentCount,
+        total: snapshot.size,
+      };
 
-      // Check if counts changed
-      const newTotal = present + late + absent;
-      if (newTotal !== attendanceStats.total && attendanceStats.total > 0) {
-        setUpdateNotification(`Attendance updated! Present: ${present}, Late: ${late}`);
+      console.log("New stats:", newStats);
+
+      // Only update notification if stats changed
+      if (JSON.stringify(newStats) !== JSON.stringify(attendanceStats)) {
+        setAttendanceStats(newStats);
+        setLastUpdated(new Date().toLocaleTimeString());
+        setUpdateNotification("Attendance stats updated!");
         setTimeout(() => setUpdateNotification(""), 3000);
       }
 
-      setAttendanceStats({
-        present,
-        late,
-        absent,
-        total: newTotal,
-      });
-      setAttendanceStatus(todayStatus);
-      setLastUpdated(new Date().toLocaleTimeString());
-      setIsLoading(false);
-    }, (error) => {
-      console.error("❌ Error in attendance listener:", error);
       setIsLoading(false);
     });
 
-    // Fetch today's event
+    // Load today's event
     const loadEvent = async () => {
-      const eventsQuery = query(
+      const eventQuery = query(
         collection(db, "events"),
         where("date", "==", today)
       );
-      const eventSnapshot = await getDocs(eventsQuery);
-      
+
+      const eventSnapshot = await getDocs(eventQuery);
       if (!eventSnapshot.empty) {
         const docSnapshot = eventSnapshot.docs[0];
         setTodayEvent({ id: docSnapshot.id, ...docSnapshot.data() } as Event);
@@ -120,7 +112,7 @@ export default function StudentDashboardPage() {
 
     loadEvent();
 
-    return () => unsubscribe();
+    return () => unsubscribeAttendance();
   }, [user?.uid]);
 
   const getStatusBadge = (status: string) => {
@@ -164,9 +156,7 @@ export default function StudentDashboardPage() {
     }
   };
 
-  // Helper to format time with AM/PM - v3 - 2026-04-16
   const formatTime = (timeString: string | undefined) => {
-    // Format time helper
     if (!timeString) return 'N/A';
     const [hours, minutes] = timeString.split(':').map(Number);
     const period = hours >= 12 ? 'PM' : 'AM';
@@ -181,102 +171,86 @@ export default function StudentDashboardPage() {
 
         <main className="flex-1 p-8">
           <div className="max-w-4xl mx-auto">
-            {/* Real-time update notification */}
             {updateNotification && (
               <div className="mb-4 p-4 bg-emerald-100 border border-emerald-400 rounded-lg flex items-center gap-2 animate-pulse">
                 <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span className="text-emerald-800 font-medium">{updateNotification}</span>
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-gray-600">Present</span>
               </div>
-              <p className="text-3xl font-bold text-gray-800">{attendanceStats.present}</p>
+            )}
+
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Student Dashboard</h1>
+              <p className="text-gray-600">Welcome back! Track your attendance here.</p>
+              {lastUpdated && (
+                <p className="text-sm text-gray-500 mt-1">Last updated: {lastUpdated}</p>
+              )}
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <svg className="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-gray-600">Late</span>
-              </div>
-              <p className="text-3xl font-bold text-gray-800">{attendanceStats.late}</p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <svg className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-gray-600">Absent</span>
-              </div>
-              <p className="text-3xl font-bold text-gray-800">{attendanceStats.absent}</p>
-            </div>
-          </div>
-
-          {/* Last Updated Indicator */}
-          <div className="mb-8 flex items-center justify-between">
-            <p className="text-sm text-gray-500">
-              Last updated: {lastUpdated || "Loading..."}
-            </p>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-green-600 font-medium">Live updates enabled</span>
-            </div>
-          </div>
-
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">Loading...</div>
-            </div>
-          ) : todayEvent ? (
-            <div className="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold mb-2">Today's Event</h2>
-                  <p className="text-gray-600">
-                    {todayEvent.eventName} at {formatTime(todayEvent.timeIn || todayEvent.time)} - {formatTime(todayEvent.timeOut || todayEvent.time)}
-                  </p>
-                  <p className="text-gray-500 text-sm">
-                    Location: {todayEvent.location}
-                  </p>
-                </div>
-              </div>
-
-              {/* Attendance Status */}
-              <div className="mb-6">
-                <p className="text-sm text-gray-500 mb-2">Your Attendance Status:</p>
-                {getStatusBadge(attendanceStatus)}
-              </div>
-
-              <div className="flex flex-col gap-4">
-                {attendanceStatus === "not-marked" ? (
-                  <Link
-                    href="/student/scan"
-                    className="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-0.5 text-center"
-                  >
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                      </svg>
-                      Scan QR Code to Mark Attendance
-                    </span>
-                  </Link>
-                ) : (
-                  <div className="bg-emerald-50 p-4 rounded-xl text-center">
-                    <p className="text-emerald-700 font-semibold">
-                      ✓ Attendance already recorded for today
-                    </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600">Present</span>
+                  <div className="h-8 w-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                   </div>
-                )}
-                
-                <div className="bg-blue-50 p-4 rounded-lg">
+                </div>
+                <p className="text-3xl font-bold text-gray-800">{attendanceStats.present}</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600">Late</span>
+                  <div className="h-8 w-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <svg className="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-3xl font-bold text-gray-800">{attendanceStats.late}</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600">Absent</span>
+                  <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-3xl font-bold text-gray-800">{attendanceStats.absent}</p>
+              </div>
+            </div>
+
+            {todayEvent ? (
+              <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Today's Event</h2>
+                <div className="mb-6">
+                  <p className="text-lg font-semibold text-gray-800">{todayEvent.eventName}</p>
+                  <p className="text-gray-600">{todayEvent.date}</p>
+                  <p className="text-gray-600">
+                    {formatTime(todayEvent.timeIn || todayEvent.time)} - {formatTime(todayEvent.timeOut || todayEvent.time)}
+                  </p>
+                  <p className="text-gray-600">{todayEvent.location}</p>
+                </div>
+
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-gray-600 mb-2">Your Status:</p>
+                  {getStatusBadge(attendanceStatus)}
+                </div>
+
+                <Link
+                  href="/student/scan"
+                  className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Scan QR Code
+                </Link>
+
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-700">
                     <strong>How to mark attendance:</strong><br />
                     1. Find the staff member at the event<br />
@@ -286,12 +260,12 @@ export default function StudentDashboardPage() {
                   </p>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="bg-white p-8 rounded-lg shadow-md text-center">
-              <p className="text-gray-500 text-lg">No event scheduled for today</p>
-            </div>
-          )}
+            ) : (
+              <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                <p className="text-gray-500 text-lg">No event scheduled for today</p>
+              </div>
+            )}
+          </div>
         </main>
       </div>
     </ProtectedRoute>
