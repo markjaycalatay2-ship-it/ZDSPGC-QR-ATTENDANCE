@@ -162,7 +162,7 @@ export default function StudentDashboardPage() {
           </div>
         );
     }
-  }, [user?.uid]);
+  };
 
   // Helper to format time with AM/PM
   const formatTime = (timeString: string | undefined) => {
