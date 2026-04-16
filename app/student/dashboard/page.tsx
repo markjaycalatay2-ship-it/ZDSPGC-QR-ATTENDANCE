@@ -166,6 +166,7 @@ export default function StudentDashboardPage() {
 
   // Helper to format time with AM/PM - v2
   const formatTime = (timeString: string | undefined) => {
+    // Format time helper
     if (!timeString) return 'N/A';
     const [hours, minutes] = timeString.split(':').map(Number);
     const period = hours >= 12 ? 'PM' : 'AM';
