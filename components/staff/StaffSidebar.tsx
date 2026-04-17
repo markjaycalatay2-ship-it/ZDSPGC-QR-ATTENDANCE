@@ -11,8 +11,7 @@ export function StaffSidebar() {
   const navItems = [
     { href: "/staff/dashboard", label: "Dashboard" },
     { href: "/staff/events", label: "Events" },
-    { href: "/staff/courses", label: "Course Attendance" },
-    { href: "/staff/monitoring", label: "Live Monitoring" },
+    { href: "/staff/courses", label: "Live Monitoring" },
   ];
 
   return (
