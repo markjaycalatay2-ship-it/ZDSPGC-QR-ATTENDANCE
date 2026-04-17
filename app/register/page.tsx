@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
+import { GearsBackground } from "@/components/student/StudentSidebar";
 
 const ROLES = ["Student"];
 const COURSES = ["BSIS", "BPED", "ACT"];
@@ -121,30 +122,31 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-teal-100 relative overflow-hidden">
+      <GearsBackground />
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950/20 to-cyan-950/20" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-100 via-teal-200/50 to-cyan-200/50" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
 
       <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-2xl border border-slate-800 shadow-2xl">
+        <div className="bg-white p-8 rounded-2xl border border-teal-200 shadow-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-teal-500 via-cyan-500 to-teal-600 bg-clip-text text-transparent">
               Student Registration
             </h1>
-            <p className="text-slate-400">Create your account to get started</p>
+            <p className="text-gray-600">Create your account to get started</p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-sm">
+            <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-600 text-sm">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-slate-400 mb-2">
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name
               </label>
               <input
@@ -153,15 +155,15 @@ export default function RegisterPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all"
                 placeholder="Enter your full name"
               />
             </div>
 
             {/* Role Selection */}
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-slate-400 mb-2">
-                Role <span className="text-rose-400">*</span>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                Role <span className="text-rose-500">*</span>
               </label>
               <select
                 id="role"
@@ -173,17 +175,17 @@ export default function RegisterPage() {
                   setSet("");
                 }}
                 required
-                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all appearance-none cursor-pointer"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all appearance-none cursor-pointer"
                 style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 12px center`, backgroundRepeat: `no-repeat`, backgroundSize: `20px` }}
               >
                 {ROLES.map((r) => (
-                  <option key={r} value={r} className="bg-slate-800">{r}</option>
+                  <option key={r} value={r} className="bg-white">{r}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label htmlFor="studentId" className="block text-sm font-medium text-slate-400 mb-2">
+              <label htmlFor="studentId" className="block text-sm font-medium text-gray-700 mb-2">
                 {isStudent ? "Student ID" : "Staff ID"} (Optional)
               </label>
               <input
@@ -191,7 +193,7 @@ export default function RegisterPage() {
                 type="text"
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all"
                 placeholder={`Enter your ${isStudent ? "student" : "staff"} ID`}
               />
             </div>
@@ -200,20 +202,20 @@ export default function RegisterPage() {
             {isStudent && (
               <>
                 <div>
-                  <label htmlFor="course" className="block text-sm font-medium text-slate-400 mb-2">
-                    Course <span className="text-rose-400">*</span>
+                  <label htmlFor="course" className="block text-sm font-medium text-gray-700 mb-2">
+                    Course <span className="text-rose-500">*</span>
                   </label>
                   <select
                     id="course"
                     value={course}
                     onChange={(e) => handleCourseChange(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all appearance-none cursor-pointer"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all appearance-none cursor-pointer"
                     style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 12px center`, backgroundRepeat: `no-repeat`, backgroundSize: `20px` }}
                   >
-                    <option value="" className="bg-slate-800">Select your course</option>
+                    <option value="" className="bg-white">Select your course</option>
                     {COURSES.map((c) => (
-                      <option key={c} value={c} className="bg-slate-800">{c}</option>
+                      <option key={c} value={c} className="bg-white">{c}</option>
                     ))}
                   </select>
                 </div>
@@ -221,20 +223,20 @@ export default function RegisterPage() {
                 {/* Year Level - Shows based on course selection */}
                 {course && (
                   <div>
-                    <label htmlFor="year" className="block text-sm font-medium text-slate-400 mb-2">
-                      Year Level <span className="text-rose-400">*</span>
+                    <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-2">
+                      Year Level <span className="text-rose-500">*</span>
                     </label>
                     <select
                       id="year"
                       value={year}
                       onChange={(e) => handleYearChange(e.target.value)}
                       required
-                      className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all appearance-none cursor-pointer"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all appearance-none cursor-pointer"
                       style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 12px center`, backgroundRepeat: `no-repeat`, backgroundSize: `20px` }}
                     >
-                      <option value="" className="bg-slate-800">Select your year level</option>
+                      <option value="" className="bg-white">Select your year level</option>
                       {availableYears.map((y) => (
-                        <option key={y} value={y} className="bg-slate-800">{y}</option>
+                        <option key={y} value={y} className="bg-white">{y}</option>
                       ))}
                     </select>
                   </div>
@@ -243,20 +245,20 @@ export default function RegisterPage() {
                 {/* Set - Shows based on year selection */}
                 {course && year && (
                   <div>
-                    <label htmlFor="set" className="block text-sm font-medium text-slate-400 mb-2">
-                      Set <span className="text-rose-400">*</span>
+                    <label htmlFor="set" className="block text-sm font-medium text-gray-700 mb-2">
+                      Set <span className="text-rose-500">*</span>
                     </label>
                     <select
                       id="set"
                       value={set}
                       onChange={(e) => setSet(e.target.value)}
                       required
-                      className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all appearance-none cursor-pointer"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all appearance-none cursor-pointer"
                       style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: `right 12px center`, backgroundRepeat: `no-repeat`, backgroundSize: `20px` }}
                     >
-                      <option value="" className="bg-slate-800">Select your set</option>
+                      <option value="" className="bg-white">Select your set</option>
                       {availableSets.map((s) => (
-                        <option key={s} value={s} className="bg-slate-800">Set {s}</option>
+                        <option key={s} value={s} className="bg-white">Set {s}</option>
                       ))}
                     </select>
                   </div>
@@ -265,7 +267,7 @@ export default function RegisterPage() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email
               </label>
               <input
@@ -274,13 +276,13 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all"
                 placeholder="Enter your email"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-400 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -291,13 +293,13 @@ export default function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all pr-12"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all pr-12"
                   placeholder="Create a password (min 6 characters)"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-300 transition-colors focus:outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
                   tabIndex={-1}
                 >
                   {showPassword ? (
@@ -310,7 +312,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-400 mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
                 Confirm Password
               </label>
               <div className="relative">
@@ -320,13 +322,13 @@ export default function RegisterPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all pr-12"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50 transition-all pr-12"
                   placeholder="Confirm your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-300 transition-colors focus:outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
                   tabIndex={-1}
                 >
                   {showConfirmPassword ? (
@@ -341,7 +343,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+              className="w-full py-3 px-4 rounded-xl font-semibold text-white bg-gradient-to-r from-teal-500 to-teal-600 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all shadow-[0_0_30px_rgba(20,184,166,0.3)]"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -358,11 +360,11 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-slate-400 text-sm">
+            <p className="text-gray-600 text-sm">
               Already have an account?{" "}
               <Link
                 href="/login/student"
-                className="text-emerald-400 hover:text-emerald-300 transition-colors"
+                className="text-teal-600 hover:text-teal-700 transition-colors"
               >
                 Sign in here
               </Link>
@@ -372,7 +374,7 @@ export default function RegisterPage() {
           <div className="mt-4 text-center">
             <Link
               href="/"
-              className="text-slate-500 hover:text-slate-400 text-sm transition-colors"
+              className="text-gray-500 hover:text-gray-600 text-sm transition-colors"
             >
               ← Back to Home
             </Link>
