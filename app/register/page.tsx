@@ -3,7 +3,62 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
-import { GearsBackground } from "@/components/student/StudentSidebar";
+
+function GearsBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
+      <svg className="absolute top-20 left-20 w-48 h-48 animate-[spin_8s_linear_infinite]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#2dd4bf"
+          strokeWidth="4"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#2dd4bf" strokeWidth="4" />
+      </svg>
+
+      <svg className="absolute top-40 right-32 w-64 h-64 animate-[spin_12s_linear_infinite_reverse]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#14b8a6"
+          strokeWidth="4"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#14b8a6" strokeWidth="4" />
+      </svg>
+
+      <svg className="absolute bottom-32 left-40 w-56 h-56 animate-[spin_10s_linear_infinite]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#2dd4bf"
+          strokeWidth="4"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#2dd4bf" strokeWidth="4" />
+      </svg>
+
+      <svg className="absolute bottom-20 right-20 w-40 h-40 animate-[spin_6s_linear_infinite_reverse]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#14b8a6"
+          strokeWidth="4"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#14b8a6" strokeWidth="4" />
+      </svg>
+
+      <svg className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 animate-[spin_15s_linear_infinite]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#2dd4bf"
+          strokeWidth="3"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#2dd4bf" strokeWidth="3" />
+      </svg>
+    </div>
+  );
+}
 
 const ROLES = ["Student"];
 const COURSES = ["BSIS", "BPED", "ACT"];
@@ -122,12 +177,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-teal-100 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-teal-900 relative overflow-hidden">
       <GearsBackground />
       {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-100 via-teal-200/50 to-cyan-200/50" />
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-900 via-teal-800/50 to-teal-950/50" />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
 
       <div className="relative z-10 w-full max-w-md mx-4">
         <div className="bg-white p-8 rounded-2xl border border-teal-200 shadow-2xl">
