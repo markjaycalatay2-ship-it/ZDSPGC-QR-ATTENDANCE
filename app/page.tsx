@@ -1,12 +1,69 @@
 import Link from "next/link";
 
+function GearsBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+      <svg className="absolute top-20 left-20 w-48 h-48 animate-[spin_8s_linear_infinite]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#1e3a5f"
+          strokeWidth="3"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#1e3a5f" strokeWidth="3" />
+      </svg>
+
+      <svg className="absolute top-40 right-32 w-64 h-64 animate-[spin_12s_linear_infinite_reverse]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#0f1f33"
+          strokeWidth="3"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#0f1f33" strokeWidth="3" />
+      </svg>
+
+      <svg className="absolute bottom-32 left-40 w-56 h-56 animate-[spin_10s_linear_infinite]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#1e3a5f"
+          strokeWidth="3"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#1e3a5f" strokeWidth="3" />
+      </svg>
+
+      <svg className="absolute bottom-20 right-20 w-40 h-40 animate-[spin_6s_linear_infinite_reverse]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#0f1f33"
+          strokeWidth="3"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#0f1f33" strokeWidth="3" />
+      </svg>
+
+      <svg className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 animate-[spin_15s_linear_infinite]" viewBox="0 0 100 100">
+        <path
+          d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
+          fill="none"
+          stroke="#1e3a5f"
+          strokeWidth="2"
+        />
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#1e3a5f" strokeWidth="2" />
+      </svg>
+    </div>
+  );
+}
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 relative overflow-hidden">
+      <GearsBackground />
       {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950/20 to-cyan-950/20" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950/30 to-slate-950" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl animate-pulse delay-1000" />
 
       <nav className="relative z-10 backdrop-blur-md bg-slate-900/50 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
