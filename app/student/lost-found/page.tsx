@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy, addDoc, Timestamp } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { StudentSidebar } from "@/components/student/StudentSidebar";
+import { StudentSidebar, GearsBackground } from "@/components/student/StudentSidebar";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const dynamic = "force-dynamic";
@@ -124,7 +124,8 @@ export default function StudentLostFoundPage() {
 
   return (
     <ProtectedRoute allowedRole="student">
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex min-h-screen bg-teal-100 relative overflow-hidden">
+        <GearsBackground />
         <StudentSidebar />
 
         <main className="flex-1 p-8">

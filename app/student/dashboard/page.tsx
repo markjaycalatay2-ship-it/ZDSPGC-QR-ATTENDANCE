@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, query, where, onSnapshot } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { StudentSidebar } from "@/components/student/StudentSidebar";
+import { StudentSidebar, GearsBackground } from "@/components/student/StudentSidebar";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -166,10 +166,11 @@ export default function StudentDashboardPage() {
 
   return (
     <ProtectedRoute allowedRole="student">
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex min-h-screen bg-teal-100 relative overflow-hidden">
+        <GearsBackground />
         <StudentSidebar />
 
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 relative z-10">
           <div className="max-w-4xl mx-auto">
             {updateNotification && (
               <div className="mb-4 p-4 bg-emerald-100 border border-emerald-400 rounded-lg flex items-center gap-2 animate-pulse">

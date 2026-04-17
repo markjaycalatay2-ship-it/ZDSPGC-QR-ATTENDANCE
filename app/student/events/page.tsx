@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { StudentSidebar } from "@/components/student/StudentSidebar";
+import { StudentSidebar, GearsBackground } from "@/components/student/StudentSidebar";
 
 export const dynamic = "force-dynamic";
 
@@ -76,7 +76,8 @@ export default function StudentEventsPage() {
 
   return (
     <ProtectedRoute allowedRole="student">
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex min-h-screen bg-teal-100 relative overflow-hidden">
+        <GearsBackground />
         <StudentSidebar />
 
         <main className="flex-1 p-8">

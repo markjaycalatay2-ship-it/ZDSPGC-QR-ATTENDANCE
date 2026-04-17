@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { StudentSidebar } from "@/components/student/StudentSidebar";
+import { StudentSidebar, GearsBackground } from "@/components/student/StudentSidebar";
 import { collection, addDoc, getDocs, query, where, doc, getDoc } from "firebase/firestore";
 import { getFirebaseDb } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -216,7 +216,8 @@ export default function StudentScanPage() {
 
   return (
     <ProtectedRoute allowedRole="student">
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex min-h-screen bg-teal-100 relative overflow-hidden">
+        <GearsBackground />
         <StudentSidebar />
 
         <main className="flex-1 p-8">
