@@ -85,7 +85,7 @@ export default function StudentLostFoundPage() {
       await addDoc(collection(db, "lost_and_found"), {
         ...formData,
         date: new Date().toISOString().split('T')[0],
-        timestamp: Timestamp.now().toString(),
+        timestamp: new Date().toISOString(),
         claimedBy: "",
         claimedDate: "",
       });
