@@ -6,55 +6,115 @@ import Link from "next/link";
 
 function GearsBackground() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
-      <svg className="absolute top-20 left-20 w-48 h-48 animate-[spin_8s_linear_infinite]" viewBox="0 0 100 100">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40" style={{ perspective: '1000px' }}>
+      <svg className="absolute top-20 left-20 w-48 h-48 animate-[spin_8s_linear_infinite]" style={{ transform: 'rotateX(60deg) rotateZ(0deg)', transformStyle: 'preserve-3d' }} viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="gearGradReg1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#2dd4bf" />
+            <stop offset="50%" stopColor="#14b8a6" />
+            <stop offset="100%" stopColor="#0d9488" />
+          </linearGradient>
+          <filter id="shadowReg1">
+            <feDropShadow dx="3" dy="5" stdDeviation="4" floodOpacity="0.6" />
+          </filter>
+        </defs>
         <path
           d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
-          fill="none"
+          fill="url(#gearGradReg1)"
+          filter="url(#shadowReg1)"
           stroke="#2dd4bf"
-          strokeWidth="4"
+          strokeWidth="2"
         />
-        <circle cx="50" cy="50" r="15" fill="none" stroke="#2dd4bf" strokeWidth="4" />
+        <circle cx="50" cy="50" r="15" fill="#14b8a6" stroke="#2dd4bf" strokeWidth="2" filter="url(#shadowReg1)" />
+        <circle cx="50" cy="50" r="8" fill="#2dd4bf" opacity="0.6" />
       </svg>
 
-      <svg className="absolute top-40 right-32 w-64 h-64 animate-[spin_12s_linear_infinite_reverse]" viewBox="0 0 100 100">
+      <svg className="absolute top-40 right-32 w-64 h-64 animate-[spin_12s_linear_infinite_reverse]" style={{ transform: 'rotateX(-60deg) rotateZ(0deg)', transformStyle: 'preserve-3d' }} viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="gearGradReg2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#14b8a6" />
+            <stop offset="50%" stopColor="#0d9488" />
+            <stop offset="100%" stopColor="#0f766e" />
+          </linearGradient>
+          <filter id="shadowReg2">
+            <feDropShadow dx="3" dy="5" stdDeviation="4" floodOpacity="0.6" />
+          </filter>
+        </defs>
         <path
           d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
-          fill="none"
+          fill="url(#gearGradReg2)"
+          filter="url(#shadowReg2)"
           stroke="#14b8a6"
-          strokeWidth="4"
+          strokeWidth="2"
         />
-        <circle cx="50" cy="50" r="15" fill="none" stroke="#14b8a6" strokeWidth="4" />
+        <circle cx="50" cy="50" r="15" fill="#0d9488" stroke="#14b8a6" strokeWidth="2" filter="url(#shadowReg2)" />
+        <circle cx="50" cy="50" r="8" fill="#14b8a6" opacity="0.6" />
       </svg>
 
-      <svg className="absolute bottom-32 left-40 w-56 h-56 animate-[spin_10s_linear_infinite]" viewBox="0 0 100 100">
+      <svg className="absolute bottom-32 left-40 w-56 h-56 animate-[spin_10s_linear_infinite]" style={{ transform: 'rotateX(45deg) rotateZ(0deg)', transformStyle: 'preserve-3d' }} viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="gearGradReg3" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#2dd4bf" />
+            <stop offset="50%" stopColor="#14b8a6" />
+            <stop offset="100%" stopColor="#0d9488" />
+          </linearGradient>
+          <filter id="shadowReg3">
+            <feDropShadow dx="3" dy="5" stdDeviation="4" floodOpacity="0.6" />
+          </filter>
+        </defs>
         <path
           d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
-          fill="none"
+          fill="url(#gearGradReg3)"
+          filter="url(#shadowReg3)"
           stroke="#2dd4bf"
-          strokeWidth="4"
+          strokeWidth="2"
         />
-        <circle cx="50" cy="50" r="15" fill="none" stroke="#2dd4bf" strokeWidth="4" />
+        <circle cx="50" cy="50" r="15" fill="#14b8a6" stroke="#2dd4bf" strokeWidth="2" filter="url(#shadowReg3)" />
+        <circle cx="50" cy="50" r="8" fill="#2dd4bf" opacity="0.6" />
       </svg>
 
-      <svg className="absolute bottom-20 right-20 w-40 h-40 animate-[spin_6s_linear_infinite_reverse]" viewBox="0 0 100 100">
+      <svg className="absolute bottom-20 right-20 w-40 h-40 animate-[spin_6s_linear_infinite_reverse]" style={{ transform: 'rotateX(-45deg) rotateZ(0deg)', transformStyle: 'preserve-3d' }} viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="gearGradReg4" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#14b8a6" />
+            <stop offset="50%" stopColor="#0d9488" />
+            <stop offset="100%" stopColor="#0f766e" />
+          </linearGradient>
+          <filter id="shadowReg4">
+            <feDropShadow dx="3" dy="5" stdDeviation="4" floodOpacity="0.6" />
+          </filter>
+        </defs>
         <path
           d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
-          fill="none"
+          fill="url(#gearGradReg4)"
+          filter="url(#shadowReg4)"
           stroke="#14b8a6"
-          strokeWidth="4"
+          strokeWidth="2"
         />
-        <circle cx="50" cy="50" r="15" fill="none" stroke="#14b8a6" strokeWidth="4" />
+        <circle cx="50" cy="50" r="15" fill="#0d9488" stroke="#14b8a6" strokeWidth="2" filter="url(#shadowReg4)" />
+        <circle cx="50" cy="50" r="8" fill="#14b8a6" opacity="0.6" />
       </svg>
 
-      <svg className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 animate-[spin_15s_linear_infinite]" viewBox="0 0 100 100">
+      <svg className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 animate-[spin_15s_linear_infinite]" style={{ transform: 'rotateX(30deg) rotateZ(0deg)', transformStyle: 'preserve-3d' }} viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="gearGradReg5" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#2dd4bf" />
+            <stop offset="50%" stopColor="#14b8a6" />
+            <stop offset="100%" stopColor="#0d9488" />
+          </linearGradient>
+          <filter id="shadowReg5">
+            <feDropShadow dx="3" dy="5" stdDeviation="4" floodOpacity="0.6" />
+          </filter>
+        </defs>
         <path
           d="M50 0 L60 10 L75 10 L85 20 L85 35 L95 45 L95 55 L85 65 L85 80 L75 90 L60 90 L50 100 L40 90 L25 90 L15 80 L15 65 L5 55 L5 45 L15 35 L15 20 L25 10 L40 10 Z"
-          fill="none"
+          fill="url(#gearGradReg5)"
+          filter="url(#shadowReg5)"
           stroke="#2dd4bf"
-          strokeWidth="3"
+          strokeWidth="2"
         />
-        <circle cx="50" cy="50" r="15" fill="none" stroke="#2dd4bf" strokeWidth="3" />
+        <circle cx="50" cy="50" r="15" fill="#14b8a6" stroke="#2dd4bf" strokeWidth="2" filter="url(#shadowReg5)" />
+        <circle cx="50" cy="50" r="8" fill="#2dd4bf" opacity="0.6" />
       </svg>
     </div>
   );
