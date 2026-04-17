@@ -22,7 +22,7 @@ interface Event {
 export default function StudentEventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all");
+  const [filter, setFilter] = useState<"all" | "today" | "upcoming" | "past">("all");
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -49,7 +49,8 @@ export default function StudentEventsPage() {
   const today = new Date().toISOString().split("T")[0];
 
   const filteredEvents = events.filter((event) => {
-    if (filter === "upcoming") return event.date >= today;
+    if (filter === "today") return event.date === today;
+    if (filter === "upcoming") return event.date > today;
     if (filter === "past") return event.date < today;
     return true;
   });
@@ -83,7 +84,7 @@ export default function StudentEventsPage() {
 
           {/* Filter Tabs */}
           <div className="bg-white p-2 rounded-xl shadow-lg border border-gray-100 mb-6 inline-flex">
-            {(["all", "upcoming", "past"] as const).map((f) => (
+            {(["all", "today", "upcoming", "past"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -126,7 +127,9 @@ export default function StudentEventsPage() {
                 No events found
               </h3>
               <p className="text-gray-500">
-                {filter === "upcoming"
+                {filter === "today"
+                  ? "No events scheduled for today."
+                  : filter === "upcoming"
                   ? "No upcoming events scheduled."
                   : filter === "past"
                   ? "No past events."
