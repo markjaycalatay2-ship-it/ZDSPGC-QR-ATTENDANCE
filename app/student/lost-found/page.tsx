@@ -128,7 +128,7 @@ export default function StudentLostFoundPage() {
         <GearsBackground />
         <StudentSidebar />
 
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold">Lost and Found</h1>
             <button
