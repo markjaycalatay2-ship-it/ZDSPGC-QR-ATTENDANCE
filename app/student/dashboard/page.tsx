@@ -170,8 +170,8 @@ export default function StudentDashboardPage() {
         <GearsBackground />
         <StudentSidebar />
 
-        <main className="flex-1 p-8 relative z-10">
-          <div className="max-w-4xl mx-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 relative z-10 md:ml-0">
+          <div className="max-w-6xl mx-auto">
             {updateNotification && (
               <div className="mb-4 p-4 bg-emerald-100 border border-emerald-400 rounded-lg flex items-center gap-2 animate-pulse">
                 <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -181,51 +181,51 @@ export default function StudentDashboardPage() {
               </div>
             )}
 
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Student Dashboard</h1>
-              <p className="text-gray-600">Welcome back! Track your attendance here.</p>
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Student Dashboard</h1>
+              <p className="text-gray-600 text-sm sm:text-base">Welcome back! Track your attendance here.</p>
               {lastUpdated && (
-                <p className="text-sm text-gray-500 mt-1">Last updated: {lastUpdated}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">Last updated: {lastUpdated}</p>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+              <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-100">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-600">Present</span>
-                  <div className="h-8 w-8 bg-emerald-100 rounded-full flex items-center justify-center">
-                    <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span className="text-xs sm:text-sm font-medium text-gray-600">Present</span>
+                  <div className="h-6 w-6 sm:h-8 sm:w-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-800">{attendanceStats.present}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-800">{attendanceStats.present}</p>
+                <p className="text-xs sm:text-sm text-gray-600">days attended</p>
               </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+              <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-100">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-600">Late</span>
-                  <div className="h-8 w-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                    <svg className="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-3xl font-bold text-gray-800">{attendanceStats.late}</p>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-600">Absent</span>
-                  <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
-                    <svg className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <span className="text-xs sm:text-sm font-medium text-gray-600">Absent</span>
+                  <div className="h-6 w-6 sm:h-8 sm:w-8 bg-rose-100 rounded-full flex items-center justify-center">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-800">{attendanceStats.absent}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-800">{attendanceStats.absent}</p>
+                <p className="text-xs sm:text-sm text-gray-600">days absent</p>
               </div>
-            </div>
+              <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs sm:text-sm font-medium text-gray-600">Late</span>
+                  <div className="h-6 w-6 sm:h-8 sm:w-8 bg-amber-100 rounded-full flex items-center justify-center">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-800">{attendanceStats.late}</p>
+                <p className="text-xs sm:text-sm text-gray-600">times late</p>
+              </div>
 
             {todayEvent ? (
               <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">

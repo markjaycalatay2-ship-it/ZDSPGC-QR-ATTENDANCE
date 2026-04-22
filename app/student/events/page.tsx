@@ -80,16 +80,16 @@ export default function StudentEventsPage() {
         <GearsBackground />
         <StudentSidebar />
 
-        <main className="flex-1 p-8">
-          <h1 className="text-2xl font-bold mb-8">Events</h1>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8">Events</h1>
 
           {/* Filter Tabs */}
-          <div className="bg-white p-2 rounded-xl shadow-lg border border-gray-100 mb-6 inline-flex">
+          <div className="bg-white p-2 rounded-xl shadow-lg border border-gray-100 mb-6 inline-flex flex-wrap gap-1">
             {(["all", "today", "upcoming", "past"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-6 py-2 rounded-lg font-medium transition-all ${
+                className={`px-3 sm:px-6 py-2 rounded-lg font-medium transition-all text-xs sm:text-base ${
                   filter === f
                     ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md"
                     : "text-gray-600 hover:bg-gray-100"

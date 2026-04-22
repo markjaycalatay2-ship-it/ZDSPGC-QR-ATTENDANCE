@@ -128,45 +128,62 @@ export default function Home() {
       <nav className="relative z-10 backdrop-blur-md bg-slate-900/50 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <Link href="/" className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+            <Link href="/" className="text-lg sm:text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
               QR Attendance
             </Link>
-            <div className="flex gap-4">
+            <div className="hidden md:flex gap-2 lg:gap-4">
               <Link
                 href="/login/admin"
-                className="text-slate-400 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+                className="text-slate-400 hover:text-cyan-400 px-2 lg:px-3 py-2 rounded-md text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]"
               >
-                Admin Login
+                Admin
               </Link>
               <Link
                 href="/login/staff"
-                className="text-slate-400 hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(192,132,252,0.3)]"
+                className="text-slate-400 hover:text-purple-400 px-2 lg:px-3 py-2 rounded-md text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(192,132,252,0.3)]"
               >
-                Staff Login
+                Staff
               </Link>
               <Link
                 href="/login/student"
-                className="text-slate-400 hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                className="text-slate-400 hover:text-emerald-400 px-2 lg:px-3 py-2 rounded-md text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]"
               >
-                Student Login
+                Student
               </Link>
               <Link
                 href="/register"
-                className="text-slate-400 hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] border border-slate-700 hover:border-cyan-500/50"
+                className="text-slate-400 hover:text-cyan-400 px-2 lg:px-3 py-2 rounded-md text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] border border-slate-700 hover:border-cyan-500/50"
               >
                 Register
               </Link>
+            </div>
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <div className="flex gap-1">
+                <Link
+                  href="/login/student"
+                  className="text-emerald-400 hover:text-emerald-300 px-2 py-2 rounded-md text-sm font-medium transition-all"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-cyan-400 hover:text-cyan-300 px-2 py-2 rounded-md text-sm font-medium transition-all border border-cyan-500/50"
+                >
+                  Register
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </nav>
 
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-8">
-        <div className="text-center max-w-3xl">
-          <div className="mb-8 relative">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
+        <div className="text-center max-w-4xl px-4">
+          <div className="mb-6 sm:mb-8 relative">
             <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full" />
             <svg
-              className="mx-auto h-32 w-32 relative z-10"
+              className="mx-auto h-24 w-24 sm:h-32 sm:w-32 relative z-10"
               fill="none"
               viewBox="0 0 24 24"
               stroke="url(#gradient)"
@@ -185,28 +202,28 @@ export default function Home() {
               />
             </svg>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent leading-tight px-2">
             ZDSPGC DIMATALING
           </h1>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-slate-200">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 text-slate-200 px-2">
             QR Code Event Attendance System
           </h2>
-          <p className="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-400 mb-6 sm:mb-10 max-w-2xl mx-auto px-4">
             Next-generation attendance tracking with dynamic QR codes, real-time monitoring, and precision location validation
           </p>
-          <div className="flex gap-6 justify-center flex-wrap">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 justify-center items-center px-4">
             <Link
-              href="/login/admin"
-              className="group relative px-8 py-4 rounded-xl font-semibold overflow-hidden transition-all hover:scale-105"
+              href="/login/student"
+              className="group relative px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold overflow-hidden transition-all hover:scale-105 w-full sm:w-auto"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-cyan-600" />
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_30px_rgba(34,211,238,0.5)]" />
-              <span className="relative z-10 text-slate-950">Admin Portal</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-emerald-600" />
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_30px_rgba(16,185,129,0.5)]" />
+              <span className="relative z-10 text-slate-950">Student Portal</span>
             </Link>
             <Link
               href="/login/staff"
-              className="group relative px-8 py-4 rounded-xl font-semibold overflow-hidden transition-all hover:scale-105 border border-purple-500/50"
+              className="group relative px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold overflow-hidden transition-all hover:scale-105 border border-purple-500/50 w-full sm:w-auto"
             >
               <div className="absolute inset-0 bg-slate-900" />
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -214,22 +231,13 @@ export default function Home() {
               <span className="relative z-10 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">Staff Portal</span>
             </Link>
             <Link
-              href="/login/student"
-              className="group relative px-8 py-4 rounded-xl font-semibold overflow-hidden transition-all hover:scale-105 border border-emerald-500/50"
+              href="/login/admin"
+              className="group relative px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold overflow-hidden transition-all hover:scale-105 w-full sm:w-auto"
             >
-              <div className="absolute inset-0 bg-slate-900" />
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_30px_rgba(16,185,129,0.3)]" />
-              <span className="relative z-10 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Student Portal</span>
-            </Link>
-            <Link
-              href="/register"
-              className="group relative px-8 py-4 rounded-xl font-semibold overflow-hidden transition-all hover:scale-105 border border-cyan-500/50"
-            >
-              <div className="absolute inset-0 bg-slate-900" />
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_30px_rgba(34,211,238,0.3)]" />
-              <span className="relative z-10 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Register here</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-cyan-600" />
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_30px_rgba(34,211,238,0.5)]" />
+              <span className="relative z-10 text-slate-950">Admin Portal</span>
             </Link>
           </div>
         </div>

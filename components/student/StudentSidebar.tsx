@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 
 function GearsBackground() {
   return (
@@ -123,6 +124,7 @@ function GearsBackground() {
 export function StudentSidebar() {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
     { href: "/student/dashboard", label: "Dashboard" },
@@ -131,45 +133,87 @@ export function StudentSidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-teal-900 border-r border-teal-800 min-h-screen flex flex-col relative">
-      <GearsBackground />
-      {/* Glow effect */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-teal-500/5 blur-3xl pointer-events-none" />
-
-      <div className="p-6 border-b border-teal-800 relative z-10">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
-          Student Portal
-        </h1>
+    <>
+      {/* Mobile Header */}
+      <div className="md:hidden bg-teal-900 border-b border-teal-800 p-4 relative z-20">
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+            Student Portal
+          </h1>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-teal-200 hover:text-teal-400 p-2 rounded-lg hover:bg-teal-800/50 transition-all"
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {isMobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <nav className="flex-1 p-4 relative z-10">
-        <ul className="space-y-2">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`block px-4 py-3 rounded-xl transition-all ${
-                  pathname === item.href
-                    ? "bg-gradient-to-r from-teal-500/20 to-teal-600/20 text-teal-400 border border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.2)]"
-                    : "text-teal-200 hover:text-teal-400 hover:bg-teal-800/50"
-                }`}
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
 
-      <div className="p-4 border-t border-teal-800 relative z-10">
-        <button
-          onClick={logout}
-          className="w-full px-4 py-3 text-left text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all border border-transparent hover:border-rose-500/30"
-        >
-          Logout
-        </button>
-      </div>
-    </aside>
+      {/* Sidebar - Desktop: Fixed, Mobile: Slide-out */}
+      <aside className={`
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
+        md:translate-x-0 fixed md:static inset-y-0 left-0 z-40 
+        w-64 bg-teal-900 border-r border-teal-800 min-h-screen flex flex-col relative 
+        transition-transform duration-300 ease-in-out
+      `}>
+        <GearsBackground />
+        {/* Glow effect */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-teal-500/5 blur-3xl pointer-events-none" />
+
+        {/* Desktop Header */}
+        <div className="hidden md:block p-6 border-b border-teal-800 relative z-10">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+            Student Portal
+          </h1>
+        </div>
+
+        <nav className="flex-1 p-4 relative z-10">
+          <ul className="space-y-2">
+            {navItems.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block px-4 py-3 rounded-xl transition-all ${
+                    pathname === item.href
+                      ? "bg-gradient-to-r from-teal-500/20 to-teal-600/20 text-teal-400 border border-teal-500/30 shadow-[0_0_15px_rgba(20,184,166,0.2)]"
+                      : "text-teal-200 hover:text-teal-400 hover:bg-teal-800/50"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="p-4 border-t border-teal-800 relative z-10">
+          <button
+            onClick={() => {
+              logout();
+              setIsMobileMenuOpen(false);
+            }}
+            className="w-full px-4 py-3 text-left text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all border border-transparent hover:border-rose-500/30"
+          >
+            Logout
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
 

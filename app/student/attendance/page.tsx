@@ -98,8 +98,8 @@ export default function StudentAttendancePage() {
         <GearsBackground />
         <StudentSidebar />
 
-        <main className="flex-1 p-8">
-          <h1 className="text-2xl font-bold mb-8">Attendance History</h1>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8">Attendance History</h1>
 
           {/* Attendance Table */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
